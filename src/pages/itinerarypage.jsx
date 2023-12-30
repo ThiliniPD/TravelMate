@@ -1,42 +1,25 @@
+import Map from "../components/Map"; 
+import Itinerary from "../components/itinerary";
+import * as React from 'react';
+import Card from '@mui/material/Card';
+import Grid from '@mui/material/Unstable_Grid2';
+import Box from '@mui/material/Box';
 
-import React from 'react';
-import { GoogleMap, useLoadScript, Marker } from '@react-google-maps/api';
+export default function Itinerarypage() {
 
-const libraries = ['places'];
-const mapContainerStyle = {
-  width: '100vw',
-  height: '100vh',
-};
-const center = {
-  lat: 7.2905715, // default latitude
-  lng: 80.6337262, // default longitude
-};
-
-const App1 = () => {
-  const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: 'AIzaSyB4L45EgWGU3NK2KyYr7orRvxLrEFsoFRo',
-    libraries,
-  });
-
-  if (loadError) {
-    return <div>Error loading maps</div>;
-  }
-
-  if (!isLoaded) {
-    return <div>Loading maps</div>;
-  }
-
-  return (
-    <div>
-      <GoogleMap
-        mapContainerStyle={mapContainerStyle}
-        zoom={10}
-        center={center}
-      >
-        <Marker position={center} />
-      </GoogleMap>
+  return (    
+    <div className="">    
+      <Card raised={true} sx={{ height: 1, padding: 0, backgroundColor:"lightblue", 
+              borderTopLeftRadius:0, borderTopRightRadius:0 }}>
+          <Grid container spacing={1}>
+            <Grid xs={12} sm={7} md={7} lg={8} xl={8}>
+              <Map />
+            </Grid>
+            <Grid xs={12} sm={5} md={5} lg={4} xl={4}>
+              <Itinerary/>
+            </Grid>
+          </Grid>
+      </Card>
     </div>
-  );
-};
-
-export default App1;
+  ) 
+}

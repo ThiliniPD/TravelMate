@@ -7,9 +7,7 @@ function App() {
 
   return (
     <>
-    <AppRoutes></AppRoutes>
-    <div>My capstone project</div>
-     
+    <AppRoutes></AppRoutes>   
     </>
   )
 }

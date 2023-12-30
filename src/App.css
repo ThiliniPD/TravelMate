@@ -1,7 +1,11 @@
+body {
+  margin: 0px;
+}
+
 #root {
   max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+  margin: 0px auto;
+  padding: 0px;
   text-align: center;
 }
 
