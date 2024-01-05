@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { Autocomplete, CircularProgress, Grid, Stack } from '@mui/material';
+import { Autocomplete, CircularProgress, Grid } from '@mui/material';
 import { TextField, Typography, debounce } from '@mui/material';
-import { GoogleMap, useLoadScript, Marker } from '@react-google-maps/api';
+import { GoogleMap, useLoadScript, Marker, MarkerF } from '@react-google-maps/api';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
@@ -9,7 +9,7 @@ import Select from '@mui/material/Select';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import Box from '@mui/material/Box'; // keep this import at last as a workaround for MUI issue
 
-const LIBRARIES = ['places'];
+const LIBRARIES = ['places', 'marker', 'routes'];
 const PLACE_DETAILS = ["icon", "icon_background_color", "geometry.location", "geometry.viewport"];
 
 function MainControlBox({ center, sessionToken, onPlaceChanged }) {
@@ -88,7 +88,7 @@ function MainControlBox({ center, sessionToken, onPlaceChanged }) {
         noOptionsText= { inputValue == '' ? "Start Typing..." : "Unable to find the place..." }
         onChange={ (event, newValue) => {
           setValue(newValue);
-          if (newValue && onPlaceChanged) {
+          if (onPlaceChanged) {
             onPlaceChanged(newValue);
           }
         } }
@@ -157,6 +157,15 @@ export default function Map (props) {
   const [center, setCenter] = React.useState(null);
   const placesService = React.useRef(null);
   const sessionToken = React.useRef(null);
+  const markers = React.useRef();
+
+  if (!markers.current) {
+    markers.current = {
+      center: null, // keep the center point marker
+      selection: null, // keep the clicked position marker
+      route: [] // keep the route point markers
+    }
+  }
 
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: 'AIzaSyB4L45EgWGU3NK2KyYr7orRvxLrEFsoFRo',
@@ -184,7 +193,11 @@ export default function Map (props) {
 
   const onPlaceChanged = function(newAutocompletePrediction) {
     // update center when a location is selected in search
-    if (newAutocompletePrediction && map) {
+    if (!map) {
+      return;
+    }
+
+    if (newAutocompletePrediction) {
       if (!placesService.current) {
         placesService.current = new window.google.maps.places.PlacesService(map);
       }
@@ -202,10 +215,43 @@ export default function Map (props) {
           if (result.geometry.location) {
             map.setCenter(result.geometry.location);
             setCenter(map.getCenter());
+
+            let marker = new window.google.maps.Marker({
+              map: map,
+              position: result.geometry.location
+            });
+
+            if (markers.current.center) {
+              markers.current.center.setMap(null);
+            }
+
+            markers.current.center = marker;
           }
         }
         console.log("Place Info:", result);
       });
+    }
+    else {
+      if (markers.current.center) {
+        markers.current.center.setMap(null);
+      }
+
+      markers.current.center = null;
+    }
+  }
+
+  const onClick = function(e) {
+    if (e.latLng) {
+      let marker = new window.google.maps.Marker({
+        map: map,
+        position: e.latLng
+      });
+
+      if (markers.current.selection) {
+        markers.current.selection.setMap(null);
+      }
+
+      markers.current.selection = marker;
     }
   }
 
@@ -219,11 +265,11 @@ export default function Map (props) {
           options={ {streetViewControl: false, fullscreenControl: false, mapTypeControl: false} }
           onLoad={ map => { setMap(map); setCenter(map.getCenter()) } }
           onUnmount={ () => { setMap(null) } }
+          onClick={ onClick }
         >
           <MainControlBox center={ center } 
             sessionToken={ sessionToken.current } 
             onPlaceChanged={ onPlaceChanged }/>
-          <Marker position={ center } visible/>
         </GoogleMap>
       </div>
     </>
