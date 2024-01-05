@@ -23,8 +23,9 @@ function MainControlBox({ center, sessionToken, onPlaceChanged }) {
   const debouncedFetch = React.useMemo(
     () =>
       debounce((request, callback) => {
+        console.log("request: ", request);
         autocomplete.current.getPlacePredictions(request, callback);
-      }, 400),
+      }, 600),
     [],
   );
 
@@ -56,10 +57,11 @@ function MainControlBox({ center, sessionToken, onPlaceChanged }) {
     }
 
     setLoading(true);
-    debouncedFetch({ input: inputValue, locationBias: (center ? center : "IP_BIAS"), 
-        sessionToken: sessionToken }, (results) => {
+    debouncedFetch({ input: inputValue, location: center, radius: 10000,
+        xsessionToken: sessionToken }, (results, status) => {
       if (active) {
         setOptions(results);
+        console.log("status: ", status);
       }
       setLoading(false);
     });
@@ -150,13 +152,9 @@ function MainControlBox({ center, sessionToken, onPlaceChanged }) {
   );
 }
 
-const center = {
-  lat: 7.2905715, // default latitude
-  lng: 80.6337262, // default longitude
-};
-
 export default function Map (props) {
   const [map, setMap] = React.useState(null);
+  const [center, setCenter] = React.useState(null);
   const placesService = React.useRef(null);
   const sessionToken = React.useRef(null);
 
@@ -177,10 +175,17 @@ export default function Map (props) {
     sessionToken.current = new google.maps.places.AutocompleteSessionToken();
   }
 
+  if (!center) {
+    setCenter(new window.google.maps.LatLng({
+      lat: 7.2905715, // default latitude
+      lng: 80.6337262, // default longitude
+    }));
+  }
+
   const onPlaceChanged = function(newAutocompletePrediction) {
     // update center when a location is selected in search
     if (newAutocompletePrediction && map) {
-      if (!placesService.current && window.google) {
+      if (!placesService.current) {
         placesService.current = new window.google.maps.places.PlacesService(map);
       }
       if (!placesService.current) {
@@ -195,15 +200,14 @@ export default function Map (props) {
             map.fitBounds(result.geometry.viewport);
           }
           if (result.geometry.location) {
-            map.setCenter(result.location);
+            map.setCenter(result.geometry.location);
+            setCenter(map.getCenter());
           }
         }
         console.log("Place Info:", result);
       });
     }
   }
-
-  const center = map ? map.getCenter() : null;
 
   return (
     <>
@@ -213,15 +217,13 @@ export default function Map (props) {
           zoom={ 10 }
           center={ center }
           options={ {streetViewControl: false, fullscreenControl: false, mapTypeControl: false} }
-          onLoad={ map => { setMap(map) } }
+          onLoad={ map => { setMap(map); setCenter(map.getCenter()) } }
           onUnmount={ () => { setMap(null) } }
         >
-          {/*
-          <MainControlBox center={ map ? map.getCenter() : null } 
+          <MainControlBox center={ center } 
             sessionToken={ sessionToken.current } 
             onPlaceChanged={ onPlaceChanged }/>
-          <Marker position={ center }/>
-          */}
+          <Marker position={ center } visible/>
         </GoogleMap>
       </div>
     </>
