@@ -9,9 +9,9 @@ export default function Itinerarypage() {
 
   return (    
     <div className="">    
-      <Card raised={true} sx={{ height: 1, padding: 0, backgroundColor:"lightblue", 
+      <Card raised={true} sx={{ height: 1, padding: 0, backgroundColor:"#78a383", 
               borderTopLeftRadius:0, borderTopRightRadius:0 }}>
-          <Grid container spacing={1}>
+          <Grid container spacing={0}>
             <Grid xs={12} sm={7} md={7} lg={8} xl={8}>
               <Map />
             </Grid>
