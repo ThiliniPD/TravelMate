@@ -1,7 +1,8 @@
 import * as React from 'react';
-import { Autocomplete, CircularProgress, Grid } from '@mui/material';
+import { Autocomplete, Button, CircularProgress, Grid } from '@mui/material';
+import { Card, CardActions, CardContent, CardMedia } from '@mui/material';
 import { TextField, Typography, debounce } from '@mui/material';
-import { GoogleMap, useLoadScript, Marker, MarkerF } from '@react-google-maps/api';
+import { GoogleMap, useLoadScript, Marker, MarkerF, InfoBox, InfoBoxF } from '@react-google-maps/api';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
@@ -152,20 +153,40 @@ function MainControlBox({ center, sessionToken, onPlaceChanged }) {
   );
 }
 
+function MapInfoBox({ visibility, elementRef }) {
+  return (
+    <div ref={ elementRef } style={ {display: (visibility? 'block' : 'none')} }>
+      <Card sx={{ maxWidth: 345 }}>
+        <CardMedia
+          sx={{ height: 140 }}
+          image="/static/images/cards/contemplative-reptile.jpg"
+          title="green iguana"
+        />
+        <CardContent>
+          <Typography gutterBottom variant="h5" component="div">
+            Lizard
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Lizards are a widespread group of squamate reptiles, with over 6,000
+            species, ranging across all continents except Antarctica
+          </Typography>
+        </CardContent>
+        <CardActions>
+          <Button size="small">Share</Button>
+          <Button size="small">Learn More</Button>
+        </CardActions>
+      </Card>
+    </div>
+  )
+}
+
 export default function Map (props) {
   const [map, setMap] = React.useState(null);
   const [center, setCenter] = React.useState(null);
   const placesService = React.useRef(null);
   const sessionToken = React.useRef(null);
   const markers = React.useRef();
-
-  if (!markers.current) {
-    markers.current = {
-      center: null, // keep the center point marker
-      selection: null, // keep the clicked position marker
-      route: [] // keep the route point markers
-    }
-  }
+  const infoWindowRef = React.useRef();
 
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: 'AIzaSyB4L45EgWGU3NK2KyYr7orRvxLrEFsoFRo',
@@ -189,6 +210,14 @@ export default function Map (props) {
       lat: 7.2905715, // default latitude
       lng: 80.6337262, // default longitude
     }));
+  }
+
+  if (!markers.current) {
+    markers.current = {
+      center: null, // keep the center point marker
+      selection: null, // keep the clicked position marker
+      route: [], // keep the route point markers
+    }
   }
 
   const onPlaceChanged = function(newAutocompletePrediction) {
@@ -244,7 +273,16 @@ export default function Map (props) {
     if (e.latLng) {
       let marker = new window.google.maps.Marker({
         map: map,
-        position: e.latLng
+        position: e.latLng,
+        clickable: true,
+        draggable: true,
+        opacity: 1.0,
+        label: {
+          text: "1",
+          fontSize: "14px",
+          color: "black",
+          className: "marker-label"
+        },
       });
 
       if (markers.current.selection) {
@@ -252,7 +290,17 @@ export default function Map (props) {
       }
 
       markers.current.selection = marker;
+      markers.current.info.open(map, marker);
     }
+    e.stop();
+  }
+
+  const options = {
+    streetViewControl: false,
+    fullscreenControl: false,
+    mapTypeControl: false,
+    draggable: true,
+    clickableIcons: true,
   }
 
   return (
@@ -262,7 +310,7 @@ export default function Map (props) {
           mapContainerStyle={ { width: '100%', height: '100vh' } }
           zoom={ 10 }
           center={ center }
-          options={ {streetViewControl: false, fullscreenControl: false, mapTypeControl: false} }
+          options={ options }
           onLoad={ map => { setMap(map); setCenter(map.getCenter()) } }
           onUnmount={ () => { setMap(null) } }
           onClick={ onClick }
