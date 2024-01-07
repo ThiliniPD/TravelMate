@@ -4,22 +4,26 @@ import * as React from 'react';
 import Card from '@mui/material/Card';
 import Grid from '@mui/material/Unstable_Grid2';
 import Box from '@mui/material/Box';
+import { SelectedLocationProvider } from "../context/SelectedLocationContext";
+import { ItineraryProvider } from "../context/ItineraryContext";
 
 export default function Itinerarypage() {
-
-  return (    
-    <div className="">    
-      <Card raised={true} sx={{ height: 1, padding: 0, backgroundColor:"#78a383", 
-              borderTopLeftRadius:0, borderTopRightRadius:0 }}>
-          <Grid container spacing={0}>
-            <Grid xs={12} sm={7} md={7} lg={8} xl={8}>
-              <Map />
-            </Grid>
-            <Grid xs={12} sm={5} md={5} lg={4} xl={4}>
-              <Itinerary/>
-            </Grid>
-          </Grid>
-      </Card>
+  return (
+    <div className="">
+      <ItineraryProvider>
+        <SelectedLocationProvider>
+          <Box sx={{ height: 1, padding: 0, backgroundColor:"#78a383"}}>
+              <Grid container spacing={0}>
+                <Grid xs={12} sm={7} md={7} lg={8} xl={8}>
+                  <Map />
+                </Grid>
+                <Grid xs={12} sm={5} md={5} lg={4} xl={4}>
+                  <Itinerary/>
+                </Grid>
+              </Grid>
+          </Box>
+        </SelectedLocationProvider>
+      </ItineraryProvider>
     </div>
   ) 
 }
