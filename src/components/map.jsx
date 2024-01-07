@@ -9,9 +9,15 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import Box from '@mui/material/Box'; // keep this import at last as a workaround for MUI issue
+import { useSelectedLocationContext } from '../context/SelectedLocationContext';
+import { SELECTED_LOCATION_LOADING } from '../context/SelectedLocationContext';
 
-const LIBRARIES = ['places', 'marker', 'routes'];
-const PLACE_DETAILS = ["icon", "icon_background_color", "geometry.location", "geometry.viewport"];
+const LIBRARIES = ['places', 'marker', 'routes', 'geocoding'];
+const PLACE_DETAILS = ["formatted_address", "international_phone_number", "rating", "website", "photos", "name", "geometry.location", "geometry.viewport"];
+
+function trimAddress(str) {
+  return str.trim().replace(/^[,]+/, '').replace(/[,]+$/, '').trim()
+}
 
 function MainControlBox({ center, sessionToken, onPlaceChanged }) {
   const [options, setOptionsInternal] = React.useState([]);
@@ -89,7 +95,7 @@ function MainControlBox({ center, sessionToken, onPlaceChanged }) {
         onChange={ (event, newValue) => {
           setValue(newValue);
           if (onPlaceChanged) {
-            onPlaceChanged(newValue);
+            onPlaceChanged(newValue ? newValue.place_id : null);
           }
         } }
         onInputChange={ (event, newInputValue) => {
@@ -129,51 +135,21 @@ function MainControlBox({ center, sessionToken, onPlaceChanged }) {
             </li>
           );
         } }
-        renderTags={ (value, getTagProps) => {
-          return (
-            <span>aaaaa</span>
-          )
-        } }
       />
     </Box>
   );
 }
 
-function MapInfoBox({ visibility, elementRef }) {
-  return (
-    <div ref={ elementRef } style={ {display: (visibility? 'block' : 'none')} }>
-      <Card sx={{ maxWidth: 345 }}>
-        <CardMedia
-          sx={{ height: 140 }}
-          image="/static/images/cards/contemplative-reptile.jpg"
-          title="green iguana"
-        />
-        <CardContent>
-          <Typography gutterBottom variant="h5" component="div">
-            Lizard
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Lizards are a widespread group of squamate reptiles, with over 6,000
-            species, ranging across all continents except Antarctica
-          </Typography>
-        </CardContent>
-        <CardActions>
-          <Button size="small">Share</Button>
-          <Button size="small">Learn More</Button>
-        </CardActions>
-      </Card>
-    </div>
-  )
-}
-
 export default function Map (props) {
   const [map, setMap] = React.useState(null);
   const [center, setCenter] = React.useState(null);
+  const { setSelectedLocation } = useSelectedLocationContext();
   const placesService = React.useRef(null);
+  const geoCoderService = React.useRef(null);
   const sessionToken = React.useRef(null);
   const markers = React.useRef();
-  const infoWindowRef = React.useRef();
 
+  // load google services scripts
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: 'AIzaSyB4L45EgWGU3NK2KyYr7orRvxLrEFsoFRo',
     libraries: LIBRARIES,
@@ -191,6 +167,10 @@ export default function Map (props) {
     sessionToken.current = new google.maps.places.AutocompleteSessionToken();
   }
 
+  if (!geoCoderService.current) {
+    geoCoderService.current = new google.maps.Geocoder();
+  }
+
   if (!center) {
     setCenter(new window.google.maps.LatLng({
       lat: 7.2905715, // default latitude
@@ -201,18 +181,17 @@ export default function Map (props) {
   if (!markers.current) {
     markers.current = {
       center: null, // keep the center point marker
-      selection: null, // keep the clicked position marker
       route: [], // keep the route point markers
     }
   }
 
-  const onPlaceChanged = function(newAutocompletePrediction) {
+  const onPlaceChanged = function(newPlaceId, maintainBounds) {
     // update center when a location is selected in search
     if (!map) {
       return;
     }
 
-    if (newAutocompletePrediction) {
+    if (newPlaceId) {
       if (!placesService.current) {
         placesService.current = new window.google.maps.places.PlacesService(map);
       }
@@ -220,16 +199,19 @@ export default function Map (props) {
         return;
       }
 
-      placesService.current.getDetails({ placeId: newAutocompletePrediction.place_id, 
+      setSelectedLocation(SELECTED_LOCATION_LOADING);
+      placesService.current.getDetails({ placeId: newPlaceId, 
           sessionToken: sessionToken.current,
           fields: PLACE_DETAILS }, (result) => {
         if (result && result.geometry && map) {
-          if (result.geometry.viewport) {
+          if (!maintainBounds && result.geometry.viewport) {
             map.fitBounds(result.geometry.viewport);
           }
           if (result.geometry.location) {
-            map.setCenter(result.geometry.location);
-            setCenter(map.getCenter());
+            if (!maintainBounds) {
+              map.setCenter(result.geometry.location);
+              setCenter(map.getCenter());
+            }
 
             let marker = new window.google.maps.Marker({
               map: map,
@@ -240,7 +222,41 @@ export default function Map (props) {
               markers.current.center.setMap(null);
             }
 
+            marker.setLabel({
+              text: "1",
+              fontSize: "14px",
+              color: "black",
+              className: "marker-label"
+            });
+
             markers.current.center = marker;
+
+            if (result) {
+              // some addresses contain location code at front. remove them
+              let parts = "";
+
+              parts=result.name.split(' ', 1)
+              if (parts.length > 0 && parts[0].length > 0) {
+                if(parts[0].includes('+') && parts[0] == parts[0].toUpperCase()) {
+                  result.name = trimAddress(result.name.substring(parts[0].length));
+                }
+              }
+
+              parts=result.formatted_address.split(' ', 1)
+              if (parts.length > 0 && parts[0].length > 0) {
+                if(parts[0].includes('+') && parts[0] == parts[0].toUpperCase()) {
+                  result.formatted_address = trimAddress(result.formatted_address.substring(parts[0].length)).trim();
+                }
+              }
+
+              // sometimes the address contains name. remove it before setting
+              if (result.formatted_address.startsWith(result.name)) {
+                result.formatted_address = trimAddress(result.formatted_address.substring(result.name.length));
+              }
+            }
+
+            result.placeId = newPlaceId;
+            setSelectedLocation(result);
           }
         }
         console.log("Place Info:", result);
@@ -256,27 +272,17 @@ export default function Map (props) {
   }
 
   const onClick = function(e) {
-    if (e.latLng) {
-      let marker = new window.google.maps.Marker({
-        map: map,
-        position: e.latLng,
-        clickable: true,
-        draggable: true,
-        opacity: 1.0,
-        label: {
-          text: "1",
-          fontSize: "14px",
-          color: "black",
-          className: "marker-label"
-        },
+    console.log("click event: ", e)
+    if (e.placeId) {
+      onPlaceChanged(e.placeId, true);
+    }
+    else if (e.latLng) {
+      setSelectedLocation(SELECTED_LOCATION_LOADING);
+      geoCoderService.current.geocode({location: e.latLng}, (results) => {
+        if (results && results.length > 0 && results[0] && results[0].place_id) {
+          onPlaceChanged(results[0].place_id, true);
+        }
       });
-
-      if (markers.current.selection) {
-        markers.current.selection.setMap(null);
-      }
-
-      markers.current.selection = marker;
-      markers.current.info.open(map, marker);
     }
     e.stop();
   }
