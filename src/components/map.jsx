@@ -79,7 +79,6 @@ function MainControlBox({ center, sessionToken, onPlaceChanged }) {
       <Autocomplete
         id="asynchronous-demo"
         sx={ { width: 300 } }
-        style={ { paddingRight: '5px' } }
         filterOptions={ (x) => x }
         isOptionEqualToValue={ (option, value) => option.place_id === value.place_id }
         getOptionLabel={ (option) => option.description }
@@ -101,7 +100,7 @@ function MainControlBox({ center, sessionToken, onPlaceChanged }) {
             { ...params }
             label="Find a place"
             size="small"
-            style={ {backgroundColor: 'white'} }
+            style={ {backgroundColor: 'white',borderRadius: '5px'} }
             InputProps={ {
               ...params.InputProps,
               endAdornment: (
@@ -136,19 +135,6 @@ function MainControlBox({ center, sessionToken, onPlaceChanged }) {
           )
         } }
       />
-      <FormControl style={{ width: '40%', paddingRight: '5px' }} size="small">
-        <InputLabel id="select-label">stops</InputLabel>
-        <Select
-          labelId="select-stop-label"
-          id="select"
-          label="stops"
-          style={{ backgroundColor: 'white' }}
-        >
-          <MenuItem>Start 🏃🏽‍♂️🎬</MenuItem>
-          <MenuItem>Midway 🍔</MenuItem>
-          <MenuItem>Finish 🏡</MenuItem>
-        </Select>
-      </FormControl>
     </Box>
   );
 }
@@ -305,9 +291,9 @@ export default function Map (props) {
 
   return (
     <>
-      <div style={ {width:'100%', backgroundColor: 'green'} }>
+      <div style={ {width:'calc(100% -16px)', padding:'8px', paddingRight : '0px'} }>
         <GoogleMap
-          mapContainerStyle={ { width: '100%', height: '100vh' } }
+          mapContainerStyle={ {width: '100%', height: 'calc(100vh - 16px)', borderRadius: '5px'} }
           zoom={ 10 }
           center={ center }
           options={ options }
