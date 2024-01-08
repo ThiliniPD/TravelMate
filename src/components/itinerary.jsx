@@ -8,27 +8,32 @@ import { SELECTED_LOCATION_LOADING } from '../context/SelectedLocationContext';
 import { useItineraryContext } from '../context/ItineraryContext';
 
 const actionInfo = [
-    { action: 'Starting Point', image: 'src/assets/location-type-start.png' },
-    { action: 'Visit Location', image: 'src/assets/location-type-visit.png' },
-    { action: 'Food Stop', image: 'src/assets/location-type-food-stop.png' },
-    { action: 'Rest Stop', image: 'src/assets/location-type-rest-stop.png' },
-    { action: 'Ending Point', image: 'src/assets/location-type-end.png' },
+    { action: 'Starting Point', image: 'src/assets/location-type-start.png', code: 'start' },
+    { action: 'Visit Location', image: 'src/assets/location-type-visit.png', code: 'visit' },
+    { action: 'Food Stop', image: 'src/assets/location-type-food-stop.png', code: 'food' },
+    { action: 'Rest Stop', image: 'src/assets/location-type-rest-stop.png', code: 'rest' },
+    { action: 'Ending Point', image: 'src/assets/location-type-end.png', code: 'end' },
 ]
 
-const START_ACTION_INCEX = 0;
-const END_ACTION_INDEX = actionInfo.length;
+const START_ACTION_INDEX = 0;
+const END_ACTION_INDEX = actionInfo.length - 1;
 
 function LocationDetails({selectedLocation, onAddClicked}) {
     const [selectedAction, setSelectedAction] = React.useState(0);
-    const itenary = useItineraryContext();
+    const itinerary = useItineraryContext();
 
     const image = (selectedLocation.photos && selectedLocation.photos.length) 
         ? selectedLocation.photos[0].getUrl({maxWidth:300}) 
         : 'https://mui.com/static/images/cards/live-from-space.jpg';
 
     const onAddClickedInternal = function() {
-        itenary.addPlace(selectedLocation);
+        selectedLocation.type = actionInfo[selectedAction].code
+        itinerary.addPlace(selectedLocation);
         onAddClicked();
+    }
+
+    if (selectedAction == 0 && itinerary.hasStart()) {
+        setSelectedAction(1);
     }
 
     return(
@@ -48,15 +53,15 @@ function LocationDetails({selectedLocation, onAddClicked}) {
                 </div>
             </div>
             <div style={ {display:'flex', flexDirection: 'row',flexWrap: 'wrap', alignItems: 'stretch'} }>
-                <div style={ {padding: '8px', display:'flex', flexDirection: 'row',flexWrap: 'wrap'} }>
+                <div style={ {padding: '8px', display:'flex', flexDirection: 'row',flexWrap: 'wrap', justifyContent: 'center'} }>
                     {
                         actionInfo.map((info, index) => {
                             return (
                                 <Button key={ index } aria-label={ info.action } color='success' 
                                     variant={ selectedAction == index ? 'outlined':'' } 
                                     onClick={ ()=>{ setSelectedAction(index) } }
-                                    disabled={ index == START_ACTION_INCEX ? !itenary.hasStart() 
-                                        : index == END_ACTION_INDEX ? !itenary.hasEnd() : true }>
+                                    disabled={ index == START_ACTION_INDEX ? itinerary.hasStart() 
+                                        : index == END_ACTION_INDEX ? itinerary.hasEnd() : false }>
                                     <Avatar sx={ {width: 32, height: 32} } variant="rounded" src={info.image}/>
                                 </Button>
                             );
@@ -83,8 +88,8 @@ function LoadingIcon() {
 
 function LocationEmpty({loading}) {
     return(
-        <div style={ {height: '196px', margin:'16px'} }>
-            <img src="./src/assets/map-location.png" style={{height:'50%'}}></img>
+        <div style={ { margin:'16px'} }>
+            <img src="./src/assets/map-location.png" style={{height:'80px'}}></img>
             <div style={ {width: '100%', display:(loading? 'none' : 'block')} }>
                 <Alert severity="info" style={{width: 'calc(100% - 32px)'}}>Please select a location on the map to see the details</Alert>
             </div>
@@ -116,8 +121,7 @@ function SelectedLocationPane() {
     }
 
     return (
-        <Card sx={{ display: 'flex', alignItems: 'stretch', backgroundColor: '#f1ffe4', margin:'8px', 
-            marginRight: '16px', marginBottom: '0px' , borderRadius: '5px' }}>
+        <Card sx={{ display: 'flex', alignItems: 'stretch', backgroundColor: '#f1ffe4', borderRadius: '5px', height :'100%' }}>
             <div style={ {width: '32px', minHeight: '40px'} }>
                 <div style={ {height: 'calc(50% - 12px)'} }></div>
                 <svg className="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-vubbuv" focusable="false" aria-hidden="true" height="24px" width="24px" viewBox="0 0 24 24" data-testid="DragIcon">
@@ -133,13 +137,23 @@ function SelectedLocationPane() {
     )
 }
 
+function PlaceIcon({ place }) {
+    const image = (place.photos && place.photos.length) 
+        ? place.photos[0].getUrl({ maxWidth:300 }) 
+        : 'https://mui.com/static/images/cards/live-from-space.jpg';
+
+    return(
+        <Avatar src={ image } sx={ {width: 50, height: 50} } variant="circular"></Avatar>
+    )
+}
+
 function StepperLocationDetails({place, index, onClick, onEndit, onRemove}) {
     return(
         <>
         <StepButton style={ {width:'100%'} }
             optional={(<Typography variant="caption">{place.formatted_address}</Typography>)}
             color="inherit" onClick={ ()=>onClick(index) }>
-            <StepLabel style={ {width:'100%'} }>
+            <StepLabel style={ {width:'100%'} } StepIconComponent={PlaceIcon} StepIconProps={ {place:place} }>
                 <Box sx={ {width: '100%'} }>
                     {place.name}
                     <Divider/>
@@ -155,36 +169,34 @@ function StepperLocationDetails({place, index, onClick, onEndit, onRemove}) {
 
 function RouteDetailsPane() {
     const [activeStep, setActiveStep] = React.useState(0);
-    const itenary = useItineraryContext();
+    const itinerary = useItineraryContext();
 
     const handleStep = (index) => {
         setActiveStep(index);
     }
 
     return(
-        <div className='thin-h-scroll' style={ {height: '100%'} } >
-            <Card sx={ {backgroundColor: '#f1ffe4', margin:'8px', borderRadius: '5px', height: 'calc(100% - 16px)'} }>
-                <Stepper activeStep={activeStep} orientation="vertical" nonLinear sx={ {margin: '16px'} }>
-                    {
-                        itenary.value.map((place, index) => (
-                            <Step key={place.name}>
-                                <StepperLocationDetails key={index} place={place} index={index} onClick={handleStep}/>
-                            </Step>
-                        ))
-                    }
-                </Stepper>
-            </Card>
-        </div>
+        <Card sx={ {backgroundColor: '#f1ffe4', borderRadius: '5px'} }>
+            <Stepper activeStep={activeStep} orientation="vertical" nonLinear sx={ {margin: '16px'} }>
+                {
+                    itinerary.value.map((place, index) => (
+                        <Step key={index}>
+                            <StepperLocationDetails key={index} place={place} index={index} onClick={handleStep}/>
+                        </Step>
+                    ))
+                }
+            </Stepper>
+        </Card>
     )
 }
 
 export default function Itinerary() {
     return(
-        <div style={ {height: '100vh', overflow: 'hidden', display: 'flex', flexDirection: 'column'} }>
-            <div>
+        <div style={ {height: 'calc(100vh - 10px - 70px)', overflow: 'hidden', display: 'flex', flexDirection: 'column', alignItems: 'stretch'} }>
+            <div style={ { flex: '0 0 200px',  margin: '8px', marginRight: '16px', marginBottom: '0px'} }>
                 <SelectedLocationPane/>
             </div>
-            <div style={ {flex: 2} }>
+            <div style={ {margin: '8px', marginBottom: '0px'} } className='thin-h-scroll'>
                 <RouteDetailsPane/>
             </div>
         </div>

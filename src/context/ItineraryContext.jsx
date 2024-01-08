@@ -4,6 +4,7 @@ const ItineraryContext = createContext();
 
 export const ItineraryProvider = ({children}) => {
     const [itinerary, setItinerary] = useState([]);
+    const [routeData, setRouteData] = useState(new Map());
     const [privateState, setPrivateState] = useState({});
 
     function addPlace(place, index = -1) {
@@ -18,8 +19,15 @@ export const ItineraryProvider = ({children}) => {
                     setPrivateState({...privateState, endAdded:true});
                     setItinerary([...itinerary, place]);
                 }
+                else if (place.type != 'start' && place.type != 'end') {
+                    if (index <= 0 ) {
+                        // add to the last if there is no last. otherwise add to one before last
+                        index = privateState.endAdded ? itinerary.length - 1 : itinerary.length;
+                    }
+                    setItinerary([...itinerary.slice(0, index), place, ...itinerary.slice(index)]);
+                }
                 else {
-                    setItinerary([...itinerary.slice(0, index), place, ...itinerary.slice(index)])
+                    return false;
                 }
 
                 return true;
@@ -57,9 +65,24 @@ export const ItineraryProvider = ({children}) => {
         return privateState.endAdded == true;
     }
 
+    function updateRoutes(routes) {
+        routes = new Map(routes); // take a copy of the map
+
+        // remove unecessary routes and merge route data
+        routeData.forEach((value, key) => {
+            if (!routes.has(key)) {
+                if (itinerary.find((place) => (place.placeId == key))) {
+                    routes.set(key, value);
+                }
+            }
+        })
+
+        setRouteData(routes);
+    }
+
     return (
         <ItineraryContext.Provider value={{ value:itinerary, addPlace, removePlace, 
-            hasStart, hasEnd }}>
+            hasStart, hasEnd, routes:routeData, updateRoutes }}>
             {children}
         </ItineraryContext.Provider>
     );

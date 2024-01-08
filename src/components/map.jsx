@@ -1,16 +1,12 @@
 import * as React from 'react';
-import { Autocomplete, Button, CircularProgress, Grid } from '@mui/material';
-import { Card, CardActions, CardContent, CardMedia } from '@mui/material';
+import { Autocomplete, CircularProgress, Grid } from '@mui/material';
 import { TextField, Typography, debounce } from '@mui/material';
-import { GoogleMap, useLoadScript, Marker, MarkerF, InfoBox, InfoBoxF } from '@react-google-maps/api';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
+import { GoogleMap, useLoadScript } from '@react-google-maps/api';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import Box from '@mui/material/Box'; // keep this import at last as a workaround for MUI issue
 import { useSelectedLocationContext } from '../context/SelectedLocationContext';
 import { SELECTED_LOCATION_LOADING } from '../context/SelectedLocationContext';
+import { useItineraryContext } from '../context/ItineraryContext';
 
 const LIBRARIES = ['places', 'marker', 'routes', 'geocoding'];
 const PLACE_DETAILS = ["formatted_address", "international_phone_number", "rating", "website", "photos", "name", "geometry.location", "geometry.viewport"];
@@ -140,20 +136,146 @@ function MainControlBox({ center, sessionToken, onPlaceChanged }) {
   );
 }
 
-export default function Map (props) {
+export default function MapComponent (props) {
   const [map, setMap] = React.useState(null);
   const [center, setCenter] = React.useState(null);
   const { setSelectedLocation } = useSelectedLocationContext();
   const placesService = React.useRef(null);
   const geoCoderService = React.useRef(null);
+  const directionService = React.useRef(null);
+  const directionRenderers = React.useRef({});
   const sessionToken = React.useRef(null);
   const markers = React.useRef();
-
+  const itinerary = useItineraryContext();
+  
   // load google services scripts
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: 'AIzaSyB4L45EgWGU3NK2KyYr7orRvxLrEFsoFRo',
     libraries: LIBRARIES,
   });
+
+  React.useEffect(() => {
+    console.log("Itinerary changed: ", itinerary.value);
+
+    if (!map) {
+      return;
+    }
+
+    if (!directionService.current) {
+      directionService.current = new google.maps.DirectionsService();
+    }
+
+    async function recalcutareRoutes(itineraryArray, routesArray, directionService) {
+      let updatedRoutes = new Map();
+      let promices = [];
+  
+      for (let i = 0; i < itineraryArray.length - 1; i++) {
+        const startPlaceId = itineraryArray[i].placeId;
+        const endPlaceId = itineraryArray[i + 1].placeId;
+        const route = routesArray.get(startPlaceId);
+        if (!route || !route.data || route.endId != endPlaceId) {
+          // this route is outdated. Need to recalculate it
+          promices.push(directionService.route({
+            origin: {
+              placeId: startPlaceId
+            },
+            destination: {
+              placeId: endPlaceId
+            },
+            travelMode: google.maps.TravelMode.DRIVING,
+          }).then((responce) => {
+            return {startPlaceId, endPlaceId, data:responce}
+          }));
+        }
+      }
+  
+      // wait for api requests to complete
+      try{
+        let responces = await Promise.all(promices);
+        responces.forEach((responce) => {
+          updatedRoutes.set(responce.startPlaceId, { data: responce.data, endId: responce.endPlaceId });
+        });
+      }
+      catch(e) {
+        console.log("Route api call failed: ", e);
+      }
+
+      itinerary.updateRoutes(updatedRoutes);
+    }
+
+    // recalculate the missing routes routes
+    recalcutareRoutes(itinerary.value, itinerary.routes, directionService.current);
+  }, [itinerary.value]);
+
+  React.useEffect(() => {
+    if (!map) {
+      // still not initialized
+      return;
+    }
+
+    // remove unused routes
+    markers.current.routes.forEach((value, key) => {
+      if(!itinerary.routes.has(key)) {
+        // this is not in routes anymore. so we remove it from the map
+        if (value.marker) {
+          value.marker.setMap(null);
+        }
+
+        if (value.route) {
+          value.route.setmap(null);
+        }
+
+        markers.current.routes.set(key, null);
+      }
+    })
+
+    // redraw updated routes
+    itinerary.routes.forEach((routeData, key) => {
+      let newMarker = null;
+      let newRoute = null;
+
+      const startPlaceId = key;
+      const endPlaceId = routeData.endId;
+      const startPlace = itinerary.value.find((place) => (place.placeId == startPlaceId));
+
+      if (!startPlace || !startPlace.geometry || !startPlace.geometry.location) {
+        return;
+      }
+      else if (!routeData || !routeData.data) {
+        return;
+      }
+
+      if (markers.current.routes.has(key)) {
+        let value = markers.current.routes.get(key);
+        newMarker = value.marker;
+        newRoute = value.route;
+      }
+
+      if (!newMarker) {
+        newMarker = new window.google.maps.Marker({
+          map: map,
+          label: {
+            text: " ",
+            fontSize: "14px",
+            color: "black",
+            className: "marker-label mk-route" + (startPlace.type != "") ? `mk-${startPlace.type}` : ""
+          }
+        });
+      }
+
+      if (!newRoute) {
+        newRoute = new google.maps.DirectionsRenderer({
+          map: map,
+          draggable: true,
+          markerOptions: { visible: false }
+        });
+      }
+
+      newMarker.setPosition(startPlace.geometry.location);
+      newRoute.setDirections(routeData.data);
+      markers.current.routes.set(key, {marker: newMarker, route: newRoute});
+    })
+  }, [itinerary.routes])
 
   if (loadError) {
     return <div>Error loading maps</div>;
@@ -181,7 +303,7 @@ export default function Map (props) {
   if (!markers.current) {
     markers.current = {
       center: null, // keep the center point marker
-      route: [], // keep the route point markers
+      routes: new Map(), // keep the route data and the markers by place ID
     }
   }
 
@@ -215,19 +337,18 @@ export default function Map (props) {
 
             let marker = new window.google.maps.Marker({
               map: map,
-              position: result.geometry.location
+              position: result.geometry.location,
+              label: {
+                text: " ",
+                fontSize: "14px",
+                color: "black",
+                className: "marker-label mk-select"
+              }
             });
 
             if (markers.current.center) {
               markers.current.center.setMap(null);
             }
-
-            marker.setLabel({
-              text: "1",
-              fontSize: "14px",
-              color: "black",
-              className: "marker-label"
-            });
 
             markers.current.center = marker;
 
@@ -299,7 +420,7 @@ export default function Map (props) {
     <>
       <div style={ {width:'calc(100% -16px)', padding:'8px', paddingRight : '0px'} }>
         <GoogleMap
-          mapContainerStyle={ {width: '100%', height: 'calc(100vh - 16px)', borderRadius: '5px'} }
+          mapContainerStyle={ {width: '100%', height: 'calc(100vh - 16px - 70px)', borderRadius: '5px'} }
           zoom={ 10 }
           center={ center }
           options={ options }
