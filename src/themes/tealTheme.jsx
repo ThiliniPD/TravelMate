@@ -4,7 +4,7 @@ import { createTheme } from "@mui/material/styles";
 // see https://mui.com/material-ui/customization/theming/
 export const tealTheme = createTheme({
         palette: {
-          primary: { main: '#ffffff', contrastText: '#ffffff' }, // Dark Grey
+          primary: { main: '#22311c', contrastText: '#ffffff' }, // Dark Grey
           secondary: { main: '#aaaaaa', contrastText: '#000000' }, // Light Grey
         },
         typography: {
@@ -17,7 +17,7 @@ export const tealTheme = createTheme({
           MuiCssBaseline: {
             styleOverrides: `a { color: #aaaaaa; }`, // Styling anchor elements
           },
-          MuiButton: { defaultProps: { variant: 'contained' } },
+          MuiButton: { defaultProps: { variant: 'text' } },
           MuiTextField: { defaultProps: { variant: 'filled' } },
         },
       });

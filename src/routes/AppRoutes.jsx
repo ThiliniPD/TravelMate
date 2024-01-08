@@ -1,6 +1,6 @@
 import {Routes, Route} from "react-router-dom";
 import ItineraryPage from "../pages/itinerarypage";
-import Homepage from "../pages/homepage";
+import Homepage from "../pages/Homepage";
 
 
 function AppRoutes(props) {
