@@ -8,27 +8,32 @@ import { SELECTED_LOCATION_LOADING } from '../context/SelectedLocationContext';
 import { useItineraryContext } from '../context/ItineraryContext';
 
 const actionInfo = [
-    { action: 'Starting Point', image: 'src/assets/location-type-start.png' },
-    { action: 'Visit Location', image: 'src/assets/location-type-visit.png' },
-    { action: 'Food Stop', image: 'src/assets/location-type-food-stop.png' },
-    { action: 'Rest Stop', image: 'src/assets/location-type-rest-stop.png' },
-    { action: 'Ending Point', image: 'src/assets/location-type-end.png' },
+    { action: 'Starting Point', image: 'src/assets/location-type-start.png', code: 'start' },
+    { action: 'Visit Location', image: 'src/assets/location-type-visit.png', code: 'visit' },
+    { action: 'Food Stop', image: 'src/assets/location-type-food-stop.png', code: 'food' },
+    { action: 'Rest Stop', image: 'src/assets/location-type-rest-stop.png', code: 'rest' },
+    { action: 'Ending Point', image: 'src/assets/location-type-end.png', code: 'end' },
 ]
 
-const START_ACTION_INCEX = 0;
-const END_ACTION_INDEX = actionInfo.length;
+const START_ACTION_INDEX = 0;
+const END_ACTION_INDEX = actionInfo.length - 1;
 
 function LocationDetails({selectedLocation, onAddClicked}) {
     const [selectedAction, setSelectedAction] = React.useState(0);
-    const itenary = useItineraryContext();
+    const itinerary = useItineraryContext();
 
     const image = (selectedLocation.photos && selectedLocation.photos.length) 
         ? selectedLocation.photos[0].getUrl({maxWidth:300}) 
         : 'https://mui.com/static/images/cards/live-from-space.jpg';
 
     const onAddClickedInternal = function() {
-        itenary.addPlace(selectedLocation);
+        selectedLocation.type = actionInfo[selectedAction].code
+        itinerary.addPlace(selectedLocation);
         onAddClicked();
+    }
+
+    if (selectedAction == 0 && itinerary.hasStart()) {
+        setSelectedAction(1);
     }
 
     return(
@@ -55,8 +60,8 @@ function LocationDetails({selectedLocation, onAddClicked}) {
                                 <Button key={ index } aria-label={ info.action } color='success' 
                                     variant={ selectedAction == index ? 'outlined':'' } 
                                     onClick={ ()=>{ setSelectedAction(index) } }
-                                    disabled={ index == START_ACTION_INCEX ? !itenary.hasStart() 
-                                        : index == END_ACTION_INDEX ? !itenary.hasEnd() : true }>
+                                    disabled={ index == START_ACTION_INDEX ? itinerary.hasStart() 
+                                        : index == END_ACTION_INDEX ? itinerary.hasEnd() : false }>
                                     <Avatar sx={ {width: 32, height: 32} } variant="rounded" src={info.image}/>
                                 </Button>
                             );
@@ -132,13 +137,23 @@ function SelectedLocationPane() {
     )
 }
 
+function PlaceIcon({ place }) {
+    const image = (place.photos && place.photos.length) 
+        ? place.photos[0].getUrl({ maxWidth:300 }) 
+        : 'https://mui.com/static/images/cards/live-from-space.jpg';
+
+    return(
+        <Avatar src={ image } sx={ {width: 50, height: 50} } variant="circular"></Avatar>
+    )
+}
+
 function StepperLocationDetails({place, index, onClick, onEndit, onRemove}) {
     return(
         <>
         <StepButton style={ {width:'100%'} }
             optional={(<Typography variant="caption">{place.formatted_address}</Typography>)}
             color="inherit" onClick={ ()=>onClick(index) }>
-            <StepLabel style={ {width:'100%'} }>
+            <StepLabel style={ {width:'100%'} } StepIconComponent={PlaceIcon} StepIconProps={ {place:place} }>
                 <Box sx={ {width: '100%'} }>
                     {place.name}
                     <Divider/>
@@ -154,7 +169,7 @@ function StepperLocationDetails({place, index, onClick, onEndit, onRemove}) {
 
 function RouteDetailsPane() {
     const [activeStep, setActiveStep] = React.useState(0);
-    const itenary = useItineraryContext();
+    const itinerary = useItineraryContext();
 
     const handleStep = (index) => {
         setActiveStep(index);
@@ -164,7 +179,7 @@ function RouteDetailsPane() {
         <Card sx={ {backgroundColor: '#f1ffe4', borderRadius: '5px'} }>
             <Stepper activeStep={activeStep} orientation="vertical" nonLinear sx={ {margin: '16px'} }>
                 {
-                    itenary.value.map((place, index) => (
+                    itinerary.value.map((place, index) => (
                         <Step key={index}>
                             <StepperLocationDetails key={index} place={place} index={index} onClick={handleStep}/>
                         </Step>
