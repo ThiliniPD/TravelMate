@@ -6,17 +6,17 @@ import { Grid } from "@mui/material";
 
 const data = [
     {
-     image: "/images/sample1.png", 
+     image: "src/assets/sample1.png", 
      caption:"Caption",
      description:"Description Here"
     },
     {
-      image: "/images/sample1.png", 
+      image: "src/assets/sample1.png", 
       caption:"Caption",
       description:"Description Here"
      },
      {
-      image: "/images/sample1.png",  
+      image: "src/assets/sample1.png",  
       caption:"Caption",
       description:"Description Here"
      } 
@@ -27,7 +27,7 @@ const Styled = styled('div')(({ theme, breakPoint, maxWidth }) => {
         breakPoint = 900;
     }
     if (maxWidth == null) {
-        maxWidth = '300px'
+        maxWidth = '320px'
     }
     
     return ({
@@ -47,7 +47,7 @@ function HomeCarousel() {
     };
 
     return (
-        <Carousel activeIndex={index} onSelect={handleSelect}>
+        <Carousel activeIndex={index} onSelect={handleSelect} interval={100000}>
             {data.map((slide, i) => {
                 return (
                     <Carousel.Item key={i}>
@@ -106,7 +106,7 @@ export default function Homepage() {
                         </div>
                     </Grid>
                     <Grid item  xs={12} sm={12} md={6} lg={6} xl={6}>
-                        <img src="/images/location.png" style={{height: '50vw', maxHeight: '55vh'
+                        <img src="src/assets/location.png" style={{height: '50vw', maxHeight: '55vh'
                             , paddingTop: '16px', paddingBottom: '16px'}}></img>
                     </Grid>
                 </Grid>
@@ -121,7 +121,7 @@ export default function Homepage() {
             <div style={{background: 'linear-gradient(180deg, rgba(8,61,119,1) 0%, rgba(82,119,160,1) 100%)'}}>
                 <Grid container className='home-tip-1'>
                     <Grid item className="home-tip-1-col-1" xs={12} sm={12} md={4} lg={4} xl={4}>
-                            <img src="/images/tip1.png" style={{height: '30vw', maxHeight: '35vh'}}></img>
+                            <img src="src/assets/tip1.png" style={{height: '30vw', maxHeight: '35vh'}}></img>
                     </Grid>
                     <Grid item className="home-tip-1-col-2" xs={12} sm={12} md={8} lg={8} xl={8}>
                             <p className="home-main-para">Did you get lost planning your itinerary.<br/>
@@ -137,13 +137,13 @@ export default function Homepage() {
                             </p>  
                     </Grid>
                     <Grid item className="home-tip-2-col-2" xs={12} sm={12} md={6} lg={6} xl={6}>     
-                        <img src="/images/tip2.png" style={{height: '30vw', maxHeight: '35vh'}}></img>
+                        <img src="src/assets/tip2.png" style={{height: '30vw', maxHeight: '35vh'}}></img>
                     </Grid>
                 </Grid>
 
                 <Grid container className='home-tip-3'>
                     <Grid item className="home-tip-3-col-1" xs={12} sm={12} md={6} lg={6} xl={6}>
-                            <img src="/images/tip1.png" style={{height: '30vw', maxHeight: '35vh'}}></img>
+                            <img src="src/assets/tip1.png" style={{height: '30vw', maxHeight: '35vh'}}></img>
                     </Grid>
                     <Grid item className="home-tip-3-col-2" xs={12} sm={12} md={6} lg={6} xl={6}>
                             <p className="home-main-para">Looking for recommendations to tick off your bucket list...<br/>
@@ -157,7 +157,7 @@ export default function Homepage() {
                             <p className="home-main-para">Share your adventures with your family and friends.</p>  
                     </Grid>
                     <Grid item className="home-tip-4-col-2" xs={12} sm={12} md={6} lg={6} xl={6}>     
-                        <img src="/images/tip2.png" style={{height: '30vw', maxHeight: '35vh'}}></img>
+                        <img src="src/assets/tip2.png" style={{height: '30vw', maxHeight: '35vh'}}></img>
                     </Grid>
                 </Grid>
 
