@@ -2,7 +2,7 @@ import React from 'react';
 import AddLocationAltRoundedIcon from '@mui/icons-material/AddLocationAltRounded';
 import { Alert, Avatar, Button, Card, Chip, Divider, Grid, IconButton, TextField, } from '@mui/material';
 import { Step, StepButton, StepContent, StepLabel, Stepper, Typography } from '@mui/material';
-import Box from '@mui/material/Box'; // keep this import at last as a workaround for MUI issue
+import { Box } from '@mui/material'; // keep this import at last as a workaround for MUI issue
 import { useSelectedLocationContext } from '../context/SelectedLocationContext';
 import { SELECTED_LOCATION_LOADING } from '../context/SelectedLocationContext';
 import { useItineraryContext } from '../context/ItineraryContext';

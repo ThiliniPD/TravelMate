@@ -1,11 +1,10 @@
 import * as React from 'react';
 import MapComponent from "../components/Map";
 import Itinerary from "../components/itinerary";
-import Card from '@mui/material/Card';
-import Grid from '@mui/material/Unstable_Grid2';
-import Box from '@mui/material/Box';
 import { SelectedLocationProvider } from "../context/SelectedLocationContext";
 import { ItineraryProvider } from "../context/ItineraryContext";
+import { Grid } from '@mui/material';
+import { Box } from '@mui/material';
 
 export default function Itinerarypage() {
   return (

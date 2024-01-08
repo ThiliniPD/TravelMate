@@ -1,6 +1,7 @@
 import {useState} from "react";
 import styled from "@emotion/styled";
 import Carousel from 'react-bootstrap/Carousel';
+import { Button } from '@mui/material';
 import { Grid } from "@mui/material";
 
 const data = [
@@ -21,14 +22,23 @@ const data = [
      } 
   ]
 
-const Styled = styled('div')(({ theme }) => ({
-    [theme.breakpoints.up(900)]: {
-        maxWidth: 'unset'
-    },
-    [theme.breakpoints.down(900)]: {
-        maxWidth: '300px'
+const Styled = styled('div')(({ theme, breakPoint, maxWidth }) => {
+    if (breakPoint == null) {
+        breakPoint = 900;
     }
-}));
+    if (maxWidth == null) {
+        maxWidth = '300px'
+    }
+    
+    return ({
+        [theme.breakpoints.up(breakPoint)]: {
+            maxWidth: 'unset'
+        },
+        [theme.breakpoints.down(breakPoint)]: {
+            maxWidth: maxWidth
+        }
+    })
+});
 
 function HomeCarousel() {
     const [index, setIndex] = useState(0);
@@ -37,7 +47,7 @@ function HomeCarousel() {
     };
 
     return (
-        <Carousel activeIndex={index} onSelect={handleSelect} interval={100000}>
+        <Carousel activeIndex={index} onSelect={handleSelect}>
             {data.map((slide, i) => {
                 return (
                     <Carousel.Item key={i}>
@@ -96,7 +106,7 @@ export default function Homepage() {
                         </div>
                     </Grid>
                     <Grid item  xs={12} sm={12} md={6} lg={6} xl={6}>
-                        <img src="/images/location.png" style={{height: '30vw', maxHeight: '35vh'
+                        <img src="/images/location.png" style={{height: '50vw', maxHeight: '55vh'
                             , paddingTop: '16px', paddingBottom: '16px'}}></img>
                     </Grid>
                 </Grid>
@@ -114,7 +124,7 @@ export default function Homepage() {
                             <img src="/images/tip1.png" style={{height: '30vw', maxHeight: '35vh'}}></img>
                     </Grid>
                     <Grid item className="home-tip-1-col-2" xs={12} sm={12} md={8} lg={8} xl={8}>
-                            <p>Did you get lost planning your itinerary.<br/>
+                            <p className="home-main-para">Did you get lost planning your itinerary.<br/>
                                 Chill... We got you.
                             </p>
                     </Grid>
@@ -122,7 +132,7 @@ export default function Homepage() {
 
                 <Grid container className='home-tip-2'>
                     <Grid item className="home-tip-2-col-1" xs={12} sm={12} md={6} lg={6} xl={6}>
-                            <p>Everything is everywhere.<br/>
+                            <p className="home-main-para">Everything is everywhere.<br/>
                                 Yeah.. We know the feeling.
                             </p>  
                     </Grid>
@@ -136,7 +146,7 @@ export default function Homepage() {
                             <img src="/images/tip1.png" style={{height: '30vw', maxHeight: '35vh'}}></img>
                     </Grid>
                     <Grid item className="home-tip-3-col-2" xs={12} sm={12} md={6} lg={6} xl={6}>
-                            <p>Looking for recommendations to tick off your bucket list...<br/>
+                            <p className="home-main-para">Looking for recommendations to tick off your bucket list...<br/>
                                 Great! You are at the right place.
                             </p>
                     </Grid>
@@ -144,12 +154,21 @@ export default function Homepage() {
 
                 <Grid container className='home-tip-4'>
                     <Grid item className="home-tip-4-col-1" xs={12} sm={12} md={6} lg={6} xl={6}>
-                            <p>Share your adventures with your family and friends.</p>  
+                            <p className="home-main-para">Share your adventures with your family and friends.</p>  
                     </Grid>
                     <Grid item className="home-tip-4-col-2" xs={12} sm={12} md={6} lg={6} xl={6}>     
                         <img src="/images/tip2.png" style={{height: '30vw', maxHeight: '35vh'}}></img>
                     </Grid>
                 </Grid>
+
+                <div style={{width: '100%', padding: '16px'}}>
+                    <Styled style={{width: '100%', margin:'auto'}} maxWidth='200px'>
+                        <Button>
+                            <img style={{width: '100%'}} src="src/assets/start-button.png"></img>
+                        </Button>
+                    </Styled>
+                </div>
+
             </div>
         </>
     )

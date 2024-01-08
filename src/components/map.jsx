@@ -3,7 +3,7 @@ import { Autocomplete, CircularProgress, Grid } from '@mui/material';
 import { TextField, Typography, debounce } from '@mui/material';
 import { GoogleMap, useLoadScript } from '@react-google-maps/api';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
-import Box from '@mui/material/Box'; // keep this import at last as a workaround for MUI issue
+import { Box } from '@mui/material'; // keep this import at last as a workaround for MUI issue
 import { useSelectedLocationContext } from '../context/SelectedLocationContext';
 import { SELECTED_LOCATION_LOADING } from '../context/SelectedLocationContext';
 import { useItineraryContext } from '../context/ItineraryContext';

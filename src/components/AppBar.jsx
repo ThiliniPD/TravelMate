@@ -4,7 +4,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { useNavigate } from 'react-router-dom';
 import { Button, Container, IconButton, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
 import { useState } from 'react';
-import Box from '@mui/material/Box'; // keep this import at last as a workaround for MUI issue
+import { Box } from '@mui/material'; // keep this import at last as a workaround for MUI issue
 
 const logo = "Travel Mate"
 const pages = [ { name: "Homepage", route: "/" }, { name: "Itinerarypage", route: "/itinerary" }];
