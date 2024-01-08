@@ -1,10 +1,10 @@
+import AddLocationAltSharpIcon from '@mui/icons-material/AddLocationAltSharp';
 import MuiAppBar from '@mui/material/AppBar';
-import LibraryMusicIcon from '@mui/icons-material/LibraryMusic';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useNavigate } from 'react-router-dom';
 import { Button, Container, IconButton, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
 import { useState } from 'react';
-import Box from '@mui/material/Box'; // keep this import at last as a workaround for MUI issue
+import { Box } from '@mui/material'; // keep this import at last as a workaround for MUI issue
 
 const logo = "Travel Mate"
 const pages = [ { name: "Homepage", route: "/" }, { name: "Itinerarypage", route: "/itinerary" }];
@@ -29,7 +29,7 @@ export default function AppBar(props) {
         <MuiAppBar position="static">
           <Container maxWidth="xl">
             <Toolbar disableGutters>
-              <LibraryMusicIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
+              <AddLocationAltSharpIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
               <Typography
                 variant="h6"
                 noWrap
@@ -84,7 +84,7 @@ export default function AppBar(props) {
                   ))}
                 </Menu>
               </Box>
-              <LibraryMusicIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
+              <AddLocationAltSharpIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
               <Typography
                 variant="h5"
                 noWrap
