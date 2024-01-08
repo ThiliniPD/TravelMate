@@ -48,7 +48,7 @@ function LocationDetails({selectedLocation, onAddClicked}) {
                 </div>
             </div>
             <div style={ {display:'flex', flexDirection: 'row',flexWrap: 'wrap', alignItems: 'stretch'} }>
-                <div style={ {padding: '8px', display:'flex', flexDirection: 'row',flexWrap: 'wrap'} }>
+                <div style={ {padding: '8px', display:'flex', flexDirection: 'row',flexWrap: 'wrap', justifyContent: 'center'} }>
                     {
                         actionInfo.map((info, index) => {
                             return (
@@ -83,8 +83,8 @@ function LoadingIcon() {
 
 function LocationEmpty({loading}) {
     return(
-        <div style={ {height: '196px', margin:'16px'} }>
-            <img src="./src/assets/map-location.png" style={{height:'50%'}}></img>
+        <div style={ { margin:'16px'} }>
+            <img src="./src/assets/map-location.png" style={{height:'80px'}}></img>
             <div style={ {width: '100%', display:(loading? 'none' : 'block')} }>
                 <Alert severity="info" style={{width: 'calc(100% - 32px)'}}>Please select a location on the map to see the details</Alert>
             </div>
@@ -116,8 +116,7 @@ function SelectedLocationPane() {
     }
 
     return (
-        <Card sx={{ display: 'flex', alignItems: 'stretch', backgroundColor: '#f1ffe4', margin:'8px', 
-            marginRight: '16px', marginBottom: '0px' , borderRadius: '5px' }}>
+        <Card sx={{ display: 'flex', alignItems: 'stretch', backgroundColor: '#f1ffe4', borderRadius: '5px', height :'100%' }}>
             <div style={ {width: '32px', minHeight: '40px'} }>
                 <div style={ {height: 'calc(50% - 12px)'} }></div>
                 <svg className="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-vubbuv" focusable="false" aria-hidden="true" height="24px" width="24px" viewBox="0 0 24 24" data-testid="DragIcon">
@@ -162,29 +161,27 @@ function RouteDetailsPane() {
     }
 
     return(
-        <div className='thin-h-scroll' style={ {height: '100%'} } >
-            <Card sx={ {backgroundColor: '#f1ffe4', margin:'8px', borderRadius: '5px', height: 'calc(100% - 16px)'} }>
-                <Stepper activeStep={activeStep} orientation="vertical" nonLinear sx={ {margin: '16px'} }>
-                    {
-                        itenary.value.map((place, index) => (
-                            <Step key={place.name}>
-                                <StepperLocationDetails key={index} place={place} index={index} onClick={handleStep}/>
-                            </Step>
-                        ))
-                    }
-                </Stepper>
-            </Card>
-        </div>
+        <Card sx={ {backgroundColor: '#f1ffe4', borderRadius: '5px'} }>
+            <Stepper activeStep={activeStep} orientation="vertical" nonLinear sx={ {margin: '16px'} }>
+                {
+                    itenary.value.map((place, index) => (
+                        <Step key={index}>
+                            <StepperLocationDetails key={index} place={place} index={index} onClick={handleStep}/>
+                        </Step>
+                    ))
+                }
+            </Stepper>
+        </Card>
     )
 }
 
 export default function Itinerary() {
     return(
-        <div style={ {height: '100vh', overflow: 'hidden', display: 'flex', flexDirection: 'column'} }>
-            <div>
+        <div style={ {height: 'calc(100vh - 10px - 70px)', overflow: 'hidden', display: 'flex', flexDirection: 'column', alignItems: 'stretch'} }>
+            <div style={ { flex: '0 0 200px',  margin: '8px', marginRight: '16px', marginBottom: '0px'} }>
                 <SelectedLocationPane/>
             </div>
-            <div style={ {flex: 2} }>
+            <div style={ {margin: '8px', marginBottom: '0px'} } className='thin-h-scroll'>
                 <RouteDetailsPane/>
             </div>
         </div>

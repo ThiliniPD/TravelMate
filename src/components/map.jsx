@@ -1,12 +1,7 @@
 import * as React from 'react';
-import { Autocomplete, Button, CircularProgress, Grid } from '@mui/material';
-import { Card, CardActions, CardContent, CardMedia } from '@mui/material';
+import { Autocomplete, CircularProgress, Grid } from '@mui/material';
 import { TextField, Typography, debounce } from '@mui/material';
-import { GoogleMap, useLoadScript, Marker, MarkerF, InfoBox, InfoBoxF } from '@react-google-maps/api';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
+import { GoogleMap, useLoadScript } from '@react-google-maps/api';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import Box from '@mui/material/Box'; // keep this import at last as a workaround for MUI issue
 import { useSelectedLocationContext } from '../context/SelectedLocationContext';
@@ -299,7 +294,7 @@ export default function Map (props) {
     <>
       <div style={ {width:'calc(100% -16px)', padding:'8px', paddingRight : '0px'} }>
         <GoogleMap
-          mapContainerStyle={ {width: '100%', height: 'calc(100vh - 16px)', borderRadius: '5px'} }
+          mapContainerStyle={ {width: '100%', height: 'calc(100vh - 16px - 70px)', borderRadius: '5px'} }
           zoom={ 10 }
           center={ center }
           options={ options }
