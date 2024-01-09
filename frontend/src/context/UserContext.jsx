@@ -31,12 +31,16 @@ export const UserProvider = (props) => {
         setCurrentUser(user);
     };
 
+    const isLoggedIn = () => {
+        return (currentUser != null && currentUser.id != null)
+    }
+
     // 2. Provide the context.
     // The Provider component of any context (UserContext.Provider)
     // sends data via its value prop to all children at every level.
     // We are sending both the current user and an update function
     return (
-        <UserContext.Provider value={{ currentUser, handleUpdateUser }}>
+        <UserContext.Provider value={{ ...currentUser, handleUpdateUser, isLoggedIn }}>
             {props.children}
         </UserContext.Provider>
     );

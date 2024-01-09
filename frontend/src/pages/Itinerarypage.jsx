@@ -13,10 +13,10 @@ export default function Itinerarypage() {
         <SelectedLocationProvider>
           <Box sx={{ height: 1, padding: 0, backgroundColor:"#78a383"}}>
               <Grid container spacing={0}>
-                <Grid xs={12} sm={7} md={7} lg={8} xl={8}>
+                <Grid item xs={12} sm={7} md={7} lg={8} xl={8}>
                   <MapComponent />
                 </Grid>
-                <Grid xs={12} sm={5} md={5} lg={4} xl={4}>
+                <Grid item xs={12} sm={5} md={5} lg={4} xl={4}>
                   <Itinerary/>
                 </Grid>
               </Grid>

@@ -14,22 +14,10 @@ import Container from '@mui/material/Container';
 import { useUserContext } from '../context/UserContext';
 import axios from 'axios'
 
-function Copyright(props) {
-    return (
-        <Typography variant="body2" color="text.secondary" align="center" {...props}>
-            {'Copyright © '}
-            <Link color="inherit" href="https://mui.com/">
-                Your Website
-            </Link>{' '}
-            {new Date().getFullYear()}
-            {'.'}
-        </Typography>
-    );
-}
 
 export default function Login() {
 
-    const { currentUser, handleUpdateUser } = useUserContext();
+    const currentUser = useUserContext();
 
     const [loggedIn, setLoggedIn] = React.useState(currentUser.firstName)
     const [errMsg, setErrMsg] = React.useState('')
@@ -76,7 +64,7 @@ export default function Login() {
             setLoggedIn(false)
         } else {
             setErrMsg('')
-            handleUpdateUser(loggedInUser)
+            currentUser.handleUpdateUser(loggedInUser)
             setLoggedIn(true)
         }
 
@@ -146,9 +134,8 @@ export default function Login() {
                             </Grid>
                         </Grid>
                     </Box>
-                 : <Button onClick={() => { handleUpdateUser({}); setLoggedIn(false); }}>Log Out</Button> }
+                 : <Button onClick={() => { currentUser.handleUpdateUser({}); setLoggedIn(false); }}>Log Out</Button> }
             </Box>
-            <Copyright sx={{ mt: 8, mb: 4 }} />
         </Container>
     );
 }

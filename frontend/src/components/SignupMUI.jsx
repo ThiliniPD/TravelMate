@@ -13,20 +13,6 @@ import { useUserContext } from '../context/UserContext';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-function Copyright(props) {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
-
-
 export default function SignUp() {
 
     const [result, setResult] = React.useState('');
@@ -110,12 +96,11 @@ export default function SignUp() {
             <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>Sign Up</Button>
             <Grid container justifyContent="flex-end">
               <Grid item>
-                <Link href="/" variant="body2">Already have an account? Sign in</Link>
+                <Link href="/signin" variant="body2">Already have an account? Sign in</Link>
               </Grid>
             </Grid>
           </Box>
         </Box>
-        <Copyright sx={{ mt: 5 }} />
       </Container>
   );
 }

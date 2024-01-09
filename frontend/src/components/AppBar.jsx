@@ -1,17 +1,27 @@
 import AddLocationAltSharpIcon from '@mui/icons-material/AddLocationAltSharp';
 import MuiAppBar from '@mui/material/AppBar';
 import MenuIcon from '@mui/icons-material/Menu';
+import { useUserContext } from '../context/UserContext';
 import { useNavigate } from 'react-router-dom';
 import { Button, Container, IconButton, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
 import { useState } from 'react';
 import { Box } from '@mui/material'; // keep this import at last as a workaround for MUI issue
 
+
 const logo = "Travel Mate"
-const pages = [ { name: "Homepage", route: "/" }, { name: "Itinerarypage", route: "/itinerary" }];
+
+const loginModes = { loggedIn:1, loggedOut:2, any:3 }
+const pages = [
+  { name: "Homepage", route: "/", mode: loginModes.any }, 
+  { name: "Itinerarypage", route: "/itinerary", mode: loginModes.loggedIn },
+  { name: "Login", route: "/signin", mode: loginModes.loggedOut },
+  { name: "Logout", route: "/signout", mode: loginModes.loggedIn },
+];
 
 export default function AppBar(props) {
     const [anchorElNav, setAnchorElNav] = useState(null)
     const navigate = useNavigate()
+    const user = useUserContext();
 
     function handleOpenNavMenu(event) {
         setAnchorElNav(event.currentTarget);
@@ -24,6 +34,9 @@ export default function AppBar(props) {
     function handleNavButton(route) {
         navigate(route)
     }
+
+    const mode = user.isLoggedIn() ? loginModes.loggedIn : loginModes.loggedOut;
+    console.log("login mode: ", mode, user.isLoggedIn(), user);
 
     return (
         <MuiAppBar position="static">
@@ -78,9 +91,13 @@ export default function AppBar(props) {
                   }}
                 >
                   {pages.map((page) => (
+                    // show only the options based on user is logged in or not
+                    ((page.mode == loginModes.any) || (page.mode == mode)) ?
                     <MenuItem key={page.name} onClick={()=>handleNavButton(page.route)}>
                       <Typography textAlign="center">{page.name}</Typography>
                     </MenuItem>
+                    :
+                    null
                   ))}
                 </Menu>
               </Box>
@@ -89,7 +106,7 @@ export default function AppBar(props) {
                 variant="h5"
                 noWrap
                 component="a"
-                href="#app-bar-with-responsive-menu"
+                href="/"
                 sx={{
                   mr: 2,
                   display: { xs: 'flex', md: 'none' },
@@ -105,6 +122,8 @@ export default function AppBar(props) {
               </Typography>
               <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
                 {pages.map((page) => (
+                  // show only the options based on user is logged in or not
+                  ((page.mode == loginModes.any) || (page.mode == mode)) ?
                   <Button
                     key={page.name}
                     onClick={()=>handleNavButton(page.route)}
@@ -112,6 +131,8 @@ export default function AppBar(props) {
                   >
                     {page.name}
                   </Button>
+                  :
+                  null
                 ))}
               </Box>
             </Toolbar>
