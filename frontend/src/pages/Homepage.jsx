@@ -168,7 +168,6 @@ export default function Homepage() {
                         </Button>
                     </Styled>
                 </div>
-
             </div>
         </>
     )
