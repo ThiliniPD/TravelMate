@@ -107,18 +107,18 @@ export default function Homepage() {
                     </Grid>
                     <Grid item  xs={12} sm={12} md={6} lg={6} xl={6}>
                         <img src="src/assets/location.png" style={{height: '50vw', maxHeight: '55vh'
-                            , paddingTop: '16px', paddingBottom: '16px'}}></img>
+                            , paddingTop: '32px', paddingBottom: '32px'}}></img>
                     </Grid>
                 </Grid>
             </div>
 
-            <Grid container  className='home-scroll'>  
-                <Grid item  xs={12} sm={12} md={12} lg={12} xl={12}> 
-                    <HomeCarousel />
+            <div style={{background: 'linear-gradient(180deg, rgba(8,61,119,1) 0%, rgba(177,194,212,1) 100%)'}}>
+                <Grid container  className='home-scroll' style={{padding: '32px 64px'}}>  
+                    <Grid item  xs={12} sm={12} md={12} lg={12} xl={12}> 
+                        <HomeCarousel />
+                    </Grid>
                 </Grid>
-            </Grid>
 
-            <div style={{background: 'linear-gradient(180deg, rgba(8,61,119,1) 0%, rgba(82,119,160,1) 100%)'}}>
                 <Grid container className='home-tip-1'>
                     <Grid item className="home-tip-1-col-1" xs={12} sm={12} md={4} lg={4} xl={4}>
                             <img src="src/assets/tip1.png" style={{height: '30vw', maxHeight: '35vh'}}></img>

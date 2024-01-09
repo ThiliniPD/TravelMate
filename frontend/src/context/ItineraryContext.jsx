@@ -93,9 +93,9 @@ export const ItineraryProvider = ({children}) => {
                 // merge the route data
                 let startPlaceId = place.placeId;
                 let endPlaceId = mapData[index].placeId;
-                let routeData = routeData.get(startPlaceId);
-                if (routeData && routeData.endId && routeData.endId == endPlaceId) {
-                    place.routeData = routeData.data;
+                let route = routeData.get(startPlaceId);
+                if (route && route.endId && route.endId == endPlaceId) {
+                    place.routeData = route.data;
                 }
             }
         })
@@ -105,6 +105,7 @@ export const ItineraryProvider = ({children}) => {
             description : properties.description,
             startDate : properties.startDate,
             photo: properties.photo,
+            owner: currentUser.id,
             itinerary: mapData,
         }
 
@@ -113,24 +114,22 @@ export const ItineraryProvider = ({children}) => {
         if (!privateState.current.mapId) {
             // this is a new map. request to create it
             try {
-                let response = await axios.post('/api/maps', mapObject, {headers: headers});
+                let response = await axios.post('/api/trips/', mapObject, {headers: headers});
                 const {mapId} = response.data;
                 privateState.current.mapId = mapId;
                 console.log(`Map ${mapId} created`);
             } catch (err) {
                 console.log(err.message)
-                setErrMsg(err.message + ': ' + err.response.data.result);
             }
         }
         else {
             // update a already existing map
             let mapId = privateState.current.mapId;
             try {
-                let response = await axios.put(`/api/maps/${mapId}`, mapObject, {headers: headers});
+                let response = await axios.put(`/api/trips/${mapId}`, mapObject, {headers: headers});
                 console.log(`Map ${mapId} updated`);
             } catch (err) {
                 console.log(err.message)
-                setErrMsg(err.message + ': ' + err.response.data.result);
             }
         }
     }
@@ -141,12 +140,11 @@ export const ItineraryProvider = ({children}) => {
 
         // load a map from the backend to the itinery
         try {
-            let response = await axios.get(`/api/maps/${mapId}`, {headers: headers});
+            let response = await axios.get(`/api/trips/${mapId}`, {headers: headers});
             mapObject = response.data;
             console.log(`Map ${mapObject.id} dwnloaded`);
         } catch (err) {
             console.log(err.message)
-            setErrMsg(err.message + ': ' + err.response.data.result);
         }
 
         // update itinery/routes and settings
@@ -197,17 +195,17 @@ export const ItineraryProvider = ({children}) => {
 
         // delete the specified map
         try {
-            let response = await axios.delete(`/api/maps/${mapId}`, {headers: headers});
+            let response = await axios.delete(`/api/trips/${mapId}`, {headers: headers});
             console.log(`Map ${mapObject.id} deleted`);
         } catch (err) {
             console.log(err.message)
-            setErrMsg(err.message + ': ' + err.response.data.result);
         }
     }
 
     return (
         <ItineraryContext.Provider value={{ value:itinerary, addPlace, removePlace, 
-            hasStart, hasEnd, routes:routeData, updateRoutes, properties, setProperties }}>
+            hasStart, hasEnd, routes:routeData, updateRoutes, properties, setProperties,
+            saveItinery, loadItinery, deleteItinery }}>
             {children}
         </ItineraryContext.Provider>
     );

@@ -2,10 +2,12 @@ import AddLocationAltSharpIcon from '@mui/icons-material/AddLocationAltSharp';
 import MuiAppBar from '@mui/material/AppBar';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useUserContext } from '../context/UserContext';
+import { useItineraryContext } from '../context/ItineraryContext';
 import { useNavigate } from 'react-router-dom';
-import { Button, Container, IconButton, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
+import { Button, Container, Divider, IconButton, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
 import { useState } from 'react';
 import { Box } from '@mui/material'; // keep this import at last as a workaround for MUI issue
+
 
 
 const logo = "Travel Mate"
@@ -19,9 +21,10 @@ const pages = [
 ];
 
 export default function AppBar(props) {
-    const [anchorElNav, setAnchorElNav] = useState(null)
-    const navigate = useNavigate()
+    const [anchorElNav, setAnchorElNav] = useState(null);
+    const navigate = useNavigate();
     const user = useUserContext();
+    const itinerary = useItineraryContext();
 
     function handleOpenNavMenu(event) {
         setAnchorElNav(event.currentTarget);
@@ -33,6 +36,10 @@ export default function AppBar(props) {
 
     function handleNavButton(route) {
         navigate(route)
+    }
+
+    function handleSaveMap() {
+      itinerary.saveItinery();
     }
 
     const mode = user.isLoggedIn() ? loginModes.loggedIn : loginModes.loggedOut;
@@ -134,6 +141,17 @@ export default function AppBar(props) {
                   :
                   null
                 ))}
+                <Divider orientation='vertical' variant='middle' flexItem/>
+                {
+                  (mode == loginModes.loggedIn) ?
+                  <Button sx={{ my: 2, color: 'white', display: 'block', border:0 }}
+                    onClick={() => { handleSaveMap() }}
+                  >
+                    Save Map
+                  </Button>
+                  :
+                  null
+                }
               </Box>
             </Toolbar>
           </Container>

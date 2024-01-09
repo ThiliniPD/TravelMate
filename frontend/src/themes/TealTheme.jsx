@@ -5,7 +5,7 @@ import { createTheme } from "@mui/material/styles";
 export const TealTheme = createTheme({
         palette: {
           primary: { main: '#22311c', contrastText: '#ffffff' }, // Dark Grey
-          secondary: { main: '#aaaaaa', contrastText: '#000000' }, // Light Grey
+          secondary: { main: '#ebebeb', contrastText: '#000000' }, // Light Grey
         },
         typography: {
           fontFamily: 'Montserrat',
@@ -15,7 +15,7 @@ export const TealTheme = createTheme({
         shape: { borderRadius: 0 },
         components: {
           MuiCssBaseline: {
-            styleOverrides: `a { color: #aaaaaa; }`, // Styling anchor elements
+            styleOverrides: `a { color: #ebebeb; }`, // Styling anchor elements
           },
           MuiButton: { defaultProps: { variant: 'text' } },
           MuiTextField: { defaultProps: { variant: 'filled' } },

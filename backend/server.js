@@ -19,6 +19,9 @@ app.use('/api/users', userRoutes)
 
 app.use("/images", express.static("public/images")); // required for image mappings
 
+let tripRoutes = require('./routes/tripRoutes')
+app.use('/api/trips', tripRoutes)
+
 // only load the distribution/production version of frontend if we aren't running our local/dev server
 if (environment != 'local') {
 

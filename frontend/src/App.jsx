@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import './App.css'
 import { UserProvider } from './context/UserContext'
+import { ItineraryProvider } from './context/ItineraryContext'
 import AppRoutes from './routes/AppRoutes'
 import AppBar from './components/AppBar'
 import { TealTheme } from './themes/TealTheme';
@@ -27,8 +28,10 @@ function App() {
   return (
     <ThemeProvider theme={TealTheme}>
       <UserProvider>
-        <AppBar />
-        <AppRoutes />
+        <ItineraryProvider>
+          <AppBar />
+          <AppRoutes />
+        </ItineraryProvider>
       </UserProvider>
       <Copyright style={{ background:'#22311c' }}/>
     </ThemeProvider>
