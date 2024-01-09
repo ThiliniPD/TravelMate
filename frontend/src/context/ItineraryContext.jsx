@@ -1,28 +1,32 @@
-import { useState, useContext, createContext } from "react";
+import axios from "axios";
+import { useState, useContext, createContext, useRef } from "react";
+import { useUserContext } from "./UserContext";
 
 const ItineraryContext = createContext();
 
 export const ItineraryProvider = ({children}) => {
     const [itinerary, setItinerary] = useState([]);
     const [routeData, setRouteData] = useState(new Map());
-    const [privateState, setPrivateState] = useState({});
+    const privateState = useRef({});
+    const [properties, setProperties] = useState({});
+    const currentUser = useUserContext();
 
     function addPlace(place, index = -1) {
         // verify the place details are available
         if (place && place.placeId) {
             if (place.geometry && place.geometry.location) {
-                if (place.type == 'start' && !privateState.startAdded) {
-                    setPrivateState({...privateState, startAdded:true});
+                if (place.type == 'start' && !privateState.current.startAdded) {
+                    privateState.current.startAdded = true;
                     setItinerary([place, ...itinerary]);
                 }
-                else if (place.type == 'end' && !privateState.endAdded) {
-                    setPrivateState({...privateState, endAdded:true});
+                else if (place.type == 'end' && !privateState.current.endAdded) {
+                    privateState.current.endAdded = true;
                     setItinerary([...itinerary, place]);
                 }
                 else if (place.type != 'start' && place.type != 'end') {
                     if (index <= 0 ) {
                         // add to the last if there is no last. otherwise add to one before last
-                        index = privateState.endAdded ? itinerary.length - 1 : itinerary.length;
+                        index = privateState.current.endAdded ? itinerary.length - 1 : itinerary.length;
                     }
                     setItinerary([...itinerary.slice(0, index), place, ...itinerary.slice(index)]);
                 }
@@ -42,13 +46,14 @@ export const ItineraryProvider = ({children}) => {
             setItinerary([...itinerary.slice(0, index), ...itinerary.slice(index + 1)]);
             
             if (itinerary.length == 0) {
-                setPrivateState({...privateState, startAdded:false, endAdded:false});
+                privateState.current.startAdded = false;
+                privateState.current.endAdded = false;
             }
             else if (itinerary[-1].type != 'end') {
-                setPrivateState({...privateState, endAdded:false});
+                privateState.current.endAdded = false;
             }
             else if (itinerary[0].type != 'start') {
-                setPrivateState({...privateState, startAdded:false});
+                privateState.current.startAdded = false;
             }
 
             return true;
@@ -80,9 +85,129 @@ export const ItineraryProvider = ({children}) => {
         setRouteData(routes);
     }
 
+    // Save the itinary to backend
+    async function saveItinery() {
+        let mapData = [...itinerary]
+        mapData.forEach((place, index) => {
+            if (index < mapData.length - 1) {
+                // merge the route data
+                let startPlaceId = place.placeId;
+                let endPlaceId = mapData[index].placeId;
+                let routeData = routeData.get(startPlaceId);
+                if (routeData && routeData.endId && routeData.endId == endPlaceId) {
+                    place.routeData = routeData.data;
+                }
+            }
+        })
+
+        let mapObject = {
+            name: properties.name,
+            description : properties.description,
+            startDate : properties.startDate,
+            photo: properties.photo,
+            itinerary: mapData,
+        }
+
+        const headers = { "x-access-token": currentUser.token }
+
+        if (!privateState.current.mapId) {
+            // this is a new map. request to create it
+            try {
+                let response = await axios.post('/api/maps', mapObject, {headers: headers});
+                const {mapId} = response.data;
+                privateState.current.mapId = mapId;
+                console.log(`Map ${mapId} created`);
+            } catch (err) {
+                console.log(err.message)
+                setErrMsg(err.message + ': ' + err.response.data.result);
+            }
+        }
+        else {
+            // update a already existing map
+            let mapId = privateState.current.mapId;
+            try {
+                let response = await axios.put(`/api/maps/${mapId}`, mapObject, {headers: headers});
+                console.log(`Map ${mapId} updated`);
+            } catch (err) {
+                console.log(err.message)
+                setErrMsg(err.message + ': ' + err.response.data.result);
+            }
+        }
+    }
+
+    async function loadItinery(mapId) {
+        const headers = { "x-access-token": currentUser.token }
+        let mapObject = null;
+
+        // load a map from the backend to the itinery
+        try {
+            let response = await axios.get(`/api/maps/${mapId}`, {headers: headers});
+            mapObject = response.data;
+            console.log(`Map ${mapObject.id} dwnloaded`);
+        } catch (err) {
+            console.log(err.message)
+            setErrMsg(err.message + ': ' + err.response.data.result);
+        }
+
+        // update itinery/routes and settings
+        if (mapObject && mapObject.itinerary && typeof(mapObject.itinerary) == typeof(itinerary)) {
+            let itineraryObj = [];
+            let routeDataObj = new Map();
+            let privateStetObj = {
+                startAdded: false,
+                endAdded: false,
+                mapId: mapId,
+            };
+            let propDataObj = {
+                name: mapObject.name,
+                description : mapObject.description,
+                startDate : mapObject.startDate,
+                photo: mapObject.photo,
+            };
+            
+            mapObject.itinerary.forEach((place, i) => {
+                let route = place.routeData;
+                place.routeData = undefined;
+                itineraryObj.push(place);
+
+                if (place.type == 'start') {
+                    privateStetObj.startAdded = true;
+                }
+
+                if (place.type == 'end') {
+                    privateState.endAdded = true;
+                }
+
+                if (i < mapObject.itinerary.length - 1) {
+                    route.endId = mapObject.itinerary[i + 1].placeId;
+                    routeDataObj.set(place.placeId, route);
+                }
+            });
+
+            // update state for the new map
+            privateState.current = privateStetObj;
+            setProperties(propDataObj);
+            setRouteData(routeDataObj);
+            setItinerary(itineraryObj);
+        }
+    }
+
+    async function deleteItinery(mapId) {
+        const headers = { "x-access-token": currentUser.token }
+
+        // delete the specified map
+        try {
+            let response = await axios.delete(`/api/maps/${mapId}`, {headers: headers});
+            console.log(`Map ${mapObject.id} deleted`);
+        } catch (err) {
+            console.log(err.message)
+            setErrMsg(err.message + ': ' + err.response.data.result);
+        }
+    }
+
     return (
         <ItineraryContext.Provider value={{ value:itinerary, addPlace, removePlace, 
-            hasStart, hasEnd, routes:routeData, updateRoutes }}>
+            hasStart, hasEnd, routes:routeData, updateRoutes, properties, setProperties }}>
             {children}
         </ItineraryContext.Provider>
     );
