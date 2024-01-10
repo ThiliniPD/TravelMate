@@ -21,7 +21,7 @@ export default function Profilepage() {
             { 
                 trips.map((trip, i) => {
                     return (
-                        <Grid item key={i} xs={12} sm={6} md={4} lg={2} xl={3}>
+                        <Grid item key={i} xs={12} sm={6} md={4} lg={3} xl={3}>
                             <TripDetailsCard trip={trip}/>
                         </Grid>
                     )

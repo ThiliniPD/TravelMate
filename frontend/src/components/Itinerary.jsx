@@ -166,7 +166,7 @@ function StepperLocationDetails({place, index, onClick, onEndit, onRemove}) {
             </StepLabel>
         </StepButton>
         <StepContent>
-            <Typography>The quick brown fox jumped over the lazy dog{/*place.description*/}</Typography>
+            <Typography> </Typography>
         </StepContent>
         </>
     )

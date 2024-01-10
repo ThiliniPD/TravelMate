@@ -97,6 +97,11 @@ const deleteTrip = (req, res) => {
     })
 }
 
+// upload an image from a front-end form onto the back end server: https://www.positronx.io/react-file-upload-tutorial-with-node-express-and-multer/
+const uploadPhoto = (req, res) => {
+    res.status(200).json({ url: '/images/' + req.file.filename }) // send updated info back in response
+}
+
 module.exports = {
-    createTrip, getTrip, updateTrip, deleteTrip, getAllTrips
+    createTrip, getTrip, updateTrip, deleteTrip, getAllTrips, uploadPhoto
 }
