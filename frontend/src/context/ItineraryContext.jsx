@@ -157,12 +157,12 @@ export const ItineraryProvider = ({children}) => {
 
         const headers = { "x-access-token": currentUser.token }
 
-        if (!privateState.current.mapId) {
+        if (!properties.id) {
             // this is a new map. request to create it
             try {
                 let response = await axios.post('/api/trips', mapObject, {headers: headers});
                 const data = response.data;
-                privateState.current.mapId = data.id;
+                setProperties({...properties, id:data.id})
                 console.log(`Map ${data.id} created`, data);
             } catch (err) {
                 console.log(err.message)
@@ -170,7 +170,7 @@ export const ItineraryProvider = ({children}) => {
         }
         else {
             // update a already existing map
-            let mapId = privateState.current.mapId;
+            let mapId = properties.id;
             try {
                 let response = await axios.put(`/api/trips/${mapId}`, mapObject, {headers: headers});
                 console.log(`Map ${mapId} updated`);

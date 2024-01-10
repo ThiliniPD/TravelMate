@@ -3,12 +3,12 @@ import { useContext, useState } from 'react'
 import { Container, CssBaseline, Box, TextField, Button } from '@mui/material'
 import { useUserContext } from '../context/UserContext'
 
-function ImageForm() {
+function ImageForm({performClose}) {
 
     const [image, setImage] = useState({ preview: '', data: '' })
     const [imageTitle, setImageTitle] = useState('')
     const [status, setStatus] = useState('')
-    const {currentUser, handleUpdateUser} = useUserContext();
+    const currentUser = useUserContext();
 
     console.log(currentUser);
     
@@ -27,6 +27,7 @@ function ImageForm() {
             setStatus(response.data.result);
             //update current user with new profile photo details
             handleUpdateUser({...currentUser, ...response.data.data})
+            props.performClose()
         } catch(err) {
             setStatus(err.message)
         }
@@ -40,6 +41,10 @@ function ImageForm() {
             data: e.target.files[0],
         }
         setImage(img)
+    }
+
+    const handleClose = (e) => {
+        performClose()
     }
 
     return (
@@ -63,6 +68,7 @@ function ImageForm() {
                 {image.preview && <img src={image.preview} width='100' height='100' />}
                 <input name="photo" type="file" onChange={handleFileChange} />
 
+                <Button fullWidth variant="contained" sx={{ mt: 3, mb: 2 }} onClick={handleClose}>Cancel</Button>
                 <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>Submit</Button>
             </Box>
             : <p>Please log in first</p> }

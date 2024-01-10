@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Controllers = require("../controllers");
 const { verifyToken } = require("../middleware/auth");
+const { uploadFile } = require("../middleware/uploads");
 
 // uses authentication middleware function to verify the user and 
 // set user id in request token before controller functions runs
@@ -24,6 +25,10 @@ router.put('/:id', verifyToken, (req, res) => {
 
 router.delete('/:id', verifyToken, (req, res) => {
     Controllers.tripController.deleteTrip(req, res)
+})
+
+router.post('/photo', verifyToken, uploadFile, (req, res) => {
+    Controllers.tripController.uploadPhoto(req, res)
 })
 
 module.exports = router;

@@ -1,15 +1,16 @@
+import React from 'react';
 import AddLocationAltSharpIcon from '@mui/icons-material/AddLocationAltSharp';
 import MuiAppBar from '@mui/material/AppBar';
 import MenuIcon from '@mui/icons-material/Menu';
+import { useNavigate } from "react-router-dom";
 import { useUserContext } from '../context/UserContext';
 import { useItineraryContext } from '../context/ItineraryContext';
-import { useNavigate } from 'react-router-dom';
 import { Avatar, Button, Container, Divider, IconButton, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
-import { useState } from 'react';
 import { Box } from '@mui/material'; // keep this import at last as a workaround for MUI issue
 import { useAppBarStateContext } from '../context/AppBarStateContext';
-
-
+import { TripDetailsForm, UploadProfilePictureForm } from '../components/InputForms';
+import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
+import SettingsSuggestOutlinedIcon from '@mui/icons-material/SettingsSuggestOutlined';
 
 const logo = "Travel Mate"
 
@@ -22,7 +23,9 @@ const pages = [
 ];
 
 export default function AppBar(props) {
-    const [anchorElNav, setAnchorElNav] = useState(null);
+    const [anchorElNav, setAnchorElNav] = React.useState(null);
+    const [showUploadForm, setShowUploadForm] = React.useState(false);
+    const [showMapSettingsForm, setShowMapSettingsForm] = React.useState(false);
     const navigate = useNavigate();
     const user = useUserContext();
     const itinerary = useItineraryContext();
@@ -49,8 +52,16 @@ export default function AppBar(props) {
       navigate("/itinerary");
     }
 
+    function closeUploadProfilePictureForm() {
+      setShowUploadForm(false);
+    }
+
+    function showUploadProfilePictureForm() {
+      setShowUploadForm(true);
+    }
+
     const mode = user.isLoggedIn() ? loginModes.loggedIn : loginModes.loggedOut;
-    console.log("login mode: ", mode, user.isLoggedIn(), user);
+    console.log("login mode: ", mode, user.isLoggedIn(), user, showUploadForm, showMapSettingsForm);
 
     return (
         <MuiAppBar position="static">
@@ -170,12 +181,27 @@ export default function AppBar(props) {
                   :
                   null
                 }
+
+                {
+                  (mode == loginModes.loggedIn && buttonState.showSaveMap()) ?
+                  <Button sx={{ my: 2, color: 'white', display: 'block', border:0 }}
+                    onClick={() => { setShowMapSettingsForm(true) }} 
+                  >
+                    Map Settings
+                  <TripDetailsForm performClose={ () => { setShowMapSettingsForm(false) }} 
+                    open={showMapSettingsForm} trip={itinerary.properties} 
+                    performSubmit={(data) => { itinerary.setProperties(data) }}/>
+                  </Button>
+                  :
+                  null
+                }
               </Box>
               <Box sx={{ flexGrow: 0 }}>
                 {
                   mode == loginModes.loggedIn ?
-                  <IconButton sx={{ p: 0 }}>
+                  <IconButton sx={{ p: 0 }} onClick={showUploadProfilePictureForm}>
                     <Avatar alt={user.profilePhotoTitle} src={user.profilePhoto} />
+                    <UploadProfilePictureForm performClose={closeUploadProfilePictureForm} open={showUploadForm}/>
                   </IconButton>
                   :
                   null
