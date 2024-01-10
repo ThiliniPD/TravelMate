@@ -41,6 +41,27 @@ export const ItineraryProvider = ({children}) => {
         return false;
     }
 
+    function updatePlace(place, index) {
+        if (index >= 0 && index < itinerary.length) {
+            setItinerary([...itinerary.slice(0, index), place, ...itinerary.slice(index + 1)]);
+
+            if (itinerary.length == 0) {
+                privateState.current.startAdded = false;
+                privateState.current.endAdded = false;
+            }
+            else if (itinerary[itinerary.length - 1].type != 'end') {
+                privateState.current.endAdded = false;
+            }
+            else if (itinerary[0].type != 'start') {
+                privateState.current.startAdded = false;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
     function removePlace(index) {
         if (index >= 0 && index < itinerary.length) {
             setItinerary([...itinerary.slice(0, index), ...itinerary.slice(index + 1)]);
@@ -49,7 +70,7 @@ export const ItineraryProvider = ({children}) => {
                 privateState.current.startAdded = false;
                 privateState.current.endAdded = false;
             }
-            else if (itinerary[-1].type != 'end') {
+            else if (itinerary[itinerary.length - 1].type != 'end') {
                 privateState.current.endAdded = false;
             }
             else if (itinerary[0].type != 'start') {
@@ -262,7 +283,7 @@ export const ItineraryProvider = ({children}) => {
     return (
         <ItineraryContext.Provider value={{ value:itinerary, addPlace, removePlace, 
             hasStart, hasEnd, routes:routeData, updateRoutes, properties, setProperties,
-            saveItinery, loadItinery, deleteItinery, resetItinery }}>
+            saveItinery, loadItinery, deleteItinery, resetItinery, updatePlace }}>
             {children}
         </ItineraryContext.Provider>
     );

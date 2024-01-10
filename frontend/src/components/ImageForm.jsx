@@ -26,8 +26,8 @@ function ImageForm({performClose}) {
             console.log(response.data)
             setStatus(response.data.result);
             //update current user with new profile photo details
-            handleUpdateUser({...currentUser, ...response.data.data})
-            props.performClose()
+            currentUser.handleUpdateUser({...currentUser, ...response.data.data})
+            performClose()
         } catch(err) {
             setStatus(err.message)
         }
@@ -52,7 +52,7 @@ function ImageForm({performClose}) {
             <CssBaseline />
             <h3>Upload Image</h3>
             {currentUser.id ?
-            <Box component="form" onSubmit={handleSubmit} noValidate
+            <Box
                 sx={{
                     marginTop: 8,
                     display: 'flex',
@@ -69,7 +69,7 @@ function ImageForm({performClose}) {
                 <input name="photo" type="file" onChange={handleFileChange} />
 
                 <Button fullWidth variant="contained" sx={{ mt: 3, mb: 2 }} onClick={handleClose}>Cancel</Button>
-                <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>Submit</Button>
+                <Button fullWidth variant="contained" sx={{ mt: 3, mb: 2 }} onClick={handleSubmit}>Submit</Button>
             </Box>
             : <p>Please log in first</p> }
             <p>{status}</p>

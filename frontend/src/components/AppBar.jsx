@@ -182,26 +182,27 @@ export default function AppBar(props) {
                   null
                 }
 
+                <TripDetailsForm performClose={ () => { setShowMapSettingsForm(false) }} 
+                    open={showMapSettingsForm} trip={itinerary.properties} 
+                    performSubmit={(data) => { itinerary.setProperties(data) }}/>
+                    
                 {
                   (mode == loginModes.loggedIn && buttonState.showSaveMap()) ?
                   <Button sx={{ my: 2, color: 'white', display: 'block', border:0 }}
                     onClick={() => { setShowMapSettingsForm(true) }} 
                   >
                     Map Settings
-                  <TripDetailsForm performClose={ () => { setShowMapSettingsForm(false) }} 
-                    open={showMapSettingsForm} trip={itinerary.properties} 
-                    performSubmit={(data) => { itinerary.setProperties(data) }}/>
                   </Button>
                   :
                   null
                 }
               </Box>
               <Box sx={{ flexGrow: 0 }}>
+                <UploadProfilePictureForm performClose={closeUploadProfilePictureForm} open={showUploadForm}/>
                 {
                   mode == loginModes.loggedIn ?
                   <IconButton sx={{ p: 0 }} onClick={showUploadProfilePictureForm}>
                     <Avatar alt={user.profilePhotoTitle} src={user.profilePhoto} />
-                    <UploadProfilePictureForm performClose={closeUploadProfilePictureForm} open={showUploadForm}/>
                   </IconButton>
                   :
                   null

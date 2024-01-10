@@ -6,6 +6,7 @@ import { Box } from '@mui/material'; // keep this import at last as a workaround
 import { useSelectedLocationContext } from '../context/SelectedLocationContext';
 import { SELECTED_LOCATION_LOADING } from '../context/SelectedLocationContext';
 import { useItineraryContext } from '../context/ItineraryContext';
+import { LocationDetailForm } from './InputForms';
 
 const actionInfo = [
     { action: 'Starting Point', image: 'src/assets/location-type-start.png', code: 'start' },
@@ -174,19 +175,34 @@ function StepperLocationDetails({place, index, onClick, onEndit, onRemove}) {
 
 function RouteDetailsPane() {
     const [activeStep, setActiveStep] = React.useState(0);
+    const [locationDetailsOpen, setLocationDetailsOpen] = React.useState(false);
+    const [editingLocation, setEditingLocation] = React.useState({});
     const itinerary = useItineraryContext();
 
     const handleStep = (index) => {
         setActiveStep(index);
+        setEditingLocation(itinerary.value[index]);
+        setLocationDetailsOpen(true);
+    }
+
+    const locationDetailsClose = () => {
+        setLocationDetailsOpen(false);
+    }
+
+    const locationDetailsSubmit = (details) => {
+        itinerary.updatePlace(editingLocation, activeStep)
     }
 
     return(
         <Card sx={ {backgroundColor: '#f1ffe4', borderRadius: '5px'} }>
+            <LocationDetailForm location={editingLocation} open={locationDetailsOpen} 
+                performClose={locationDetailsClose} performSubmit={locationDetailsSubmit}/>
             <Stepper activeStep={activeStep} orientation="vertical" nonLinear sx={ {margin: '16px'} }>
                 {
                     itinerary.value.map((place, index) => (
                         <Step key={index}>
-                            <StepperLocationDetails key={index} place={place} index={index} onClick={handleStep}/>
+                            <StepperLocationDetails key={index} place={place} index={index} 
+                                onClick={handleStep} />
                         </Step>
                     ))
                 }

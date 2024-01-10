@@ -9,6 +9,7 @@ import { Avatar, IconButton } from '@mui/material';
 import PostAddOutlinedIcon from '@mui/icons-material/PostAddOutlined';
 import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
 import ImageForm from './ImageForm';
+import axios from 'axios';
 
 export function TripDetailsForm({trip, open, performClose, performSubmit}) {
     const [image, setImage] = React.useState({ preview: '', data: '' });
@@ -58,24 +59,19 @@ export function TripDetailsForm({trip, open, performClose, performSubmit}) {
         <Dialog
             open={open}
             onClose={performClose}
-            PaperProps={{
-                component: 'form',
-                onSubmit: {handleSubmit},
-            }}
         >
             <DialogTitle>Trip Details</DialogTitle>
             <DialogContent>
                 <TextField autoFocus required margin="dense" id="trip-name" name="name" 
                     label="Trip Title" variant="standard" onChange={(e) => { setName(e.target.value) }}/>
                 <TextField id="trip-dsc" name="description" label="Description" 
-                    multiline rows={4} onChange={(e) => { setName(e.target.value) }} 
-                    defaultValue="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."/>
+                    multiline rows={4} onChange={(e) => { setName(e.target.value) }} />
                 <Avatar src={image.preview ? image.preview : ''}></Avatar>
                 <input name="photo" type="file" onChange={handleFileChange} />
             </DialogContent>
             <DialogActions>
-                <Button onClick= {performClose}>Close</Button>
-                <Button type="submit">Save</Button>
+                <Button onClick={performClose}>Close</Button>
+                <Button onClick={handleSubmit}>Save</Button>
             </DialogActions>
         </Dialog>
     );
@@ -83,7 +79,7 @@ export function TripDetailsForm({trip, open, performClose, performSubmit}) {
 
 export function LocationDetailForm({location, open, performClose, performSubmit}) {
     const [description, setDescription] = React.useState('');    
-    const [urls, setUrls] = React.useState(location.files);
+    const [urls, setUrls] = React.useState(location.files || []);
     const [inputs, setInput] = React.useState([]);
 
     const handleSubmit = async (e) => {
@@ -128,19 +124,11 @@ export function LocationDetailForm({location, open, performClose, performSubmit}
         <Dialog
             open={open}
             onClose={performClose}
-            PaperProps={{
-                component: 'form',
-                onSubmit: {handleSubmit},
-            }}
         >
             <DialogTitle>Location Details</DialogTitle>
             <DialogContent>
-                <TextField autoFocus required margin="dense" id="trip-name" name="name" 
-                    label="Trip Title" variant="standard" onChange={(e) => { setName(e.target.value) }}/>
-                <TextField id="trip-dsc" name="description" label="Description" 
-                    multiline rows={4} onChange={(e) => { setName(e.target.value) }} />
-                <Avatar src={image.preview ? image.preview : ''}></Avatar>
-
+                <TextField id="loc-dsc" name="description" label="Description" 
+                    multiline rows={4} onChange={(e) => { setDescription(e.target.value) }} />
                 {
                     // add the urls
                     urls.map((url, i) =>{
@@ -165,8 +153,8 @@ export function LocationDetailForm({location, open, performClose, performSubmit}
                 <IconButton onClick={handleFileAdd}><PostAddOutlinedIcon/></IconButton>
             </DialogContent>
             <DialogActions>
-                <Button onClick= {performClose}>Close</Button>
-                <Button type="submit">Save</Button>
+                <Button onClick={performClose}>Close</Button>
+                <Button onClick={handleSubmit}>Save</Button>
             </DialogActions>
         </Dialog>
     )
@@ -183,6 +171,8 @@ export function UploadProfilePictureForm({performClose, open}) {
     )
 }
 
+/*
 export function EditPermissionForm({location, open, onClose, onSubmit}) {
 
 }
+*/

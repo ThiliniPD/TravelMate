@@ -6,19 +6,19 @@ import { Grid } from "@mui/material";
 
 const data = [
     {
-     image: "src/assets/sample1.png", 
-     caption:"Caption",
-     description:"Description Here"
+     image: ["src/assets/c1-p1.jpg", "src/assets/c1-p2.png", "src/assets/c1-p3.png"], 
+     caption:"",
+     description:""
     },
     {
-      image: "src/assets/sample1.png", 
-      caption:"Caption",
-      description:"Description Here"
+      image: ["src/assets/c2-p1.jpg", "src/assets/c2-p2.png", "src/assets/c2-p3.png"], 
+      caption:"",
+      description:""
      },
      {
-      image: "src/assets/sample1.png",  
-      caption:"Caption",
-      description:"Description Here"
+      image: ["src/assets/c3-p1.jpg", "src/assets/c3-p2.png", "src/assets/c3-p3.png"],  
+      caption:"",
+      description:""
      } 
   ]
 
@@ -47,7 +47,7 @@ function HomeCarousel() {
     };
 
     return (
-        <Carousel activeIndex={index} onSelect={handleSelect} interval={100000}>
+        <Carousel activeIndex={index} onSelect={handleSelect} interval={2000}>
             {data.map((slide, i) => {
                 return (
                     <Carousel.Item key={i}>
@@ -56,7 +56,7 @@ function HomeCarousel() {
                                 <Styled style={{margin: 'auto', marginRight: '0px'}}>
                                     <img
                                         className="d-block"
-                                        src={slide.image}
+                                        src={slide.image[0]}
                                         style={{width:"100%"}}
                                         alt="slider image"
                                     />
@@ -66,7 +66,7 @@ function HomeCarousel() {
                                 <Styled style={{margin: 'auto'}}>
                                     <img
                                         className="d-block"
-                                        src={slide.image}
+                                        src={slide.image[1]}
                                         style={{width:"100%"}}
                                         alt="slider image"
                                     />
@@ -76,7 +76,7 @@ function HomeCarousel() {
                                 <Styled style={{margin: 'auto', marginLeft:'0px'}}>
                                     <img
                                         className="d-block"
-                                        src={slide.image}
+                                        src={slide.image[2]}
                                         style={{width:"100%"}}
                                         alt="slider image"
                                     />
@@ -143,7 +143,7 @@ export default function Homepage() {
 
                 <Grid container className='home-tip-3'>
                     <Grid item className="home-tip-3-col-1" xs={12} sm={12} md={6} lg={6} xl={6}>
-                            <img src="src/assets/tip1.png" style={{height: '30vw', maxHeight: '35vh'}}></img>
+                            <img src="src/assets/family.png" style={{height: '30vw', maxHeight: '35vh'}}></img>
                     </Grid>
                     <Grid item className="home-tip-3-col-2" xs={12} sm={12} md={6} lg={6} xl={6}>
                             <p className="home-main-para">Looking for recommendations to tick off your bucket list...<br/>
@@ -157,17 +157,9 @@ export default function Homepage() {
                             <p className="home-main-para">Share your adventures with your family and friends.</p>  
                     </Grid>
                     <Grid item className="home-tip-4-col-2" xs={12} sm={12} md={6} lg={6} xl={6}>     
-                        <img src="src/assets/tip2.png" style={{height: '30vw', maxHeight: '35vh'}}></img>
+                        <img src="src/assets/keyboard.png" style={{height: '30vw', maxHeight: '35vh'}}></img>
                     </Grid>
                 </Grid>
-
-                <div style={{width: '100%', padding: '16px'}}>
-                    <Styled style={{width: '100%', margin:'auto'}} maxWidth='200px'>
-                        <Button>
-                            <img style={{width: '100%'}} src="src/assets/start-button.png"></img>
-                        </Button>
-                    </Styled>
-                </div>
             </div>
         </>
     )
