@@ -14,7 +14,7 @@ router.post('/:tripId/permission', verifyToken, (req, res) => {
     Controllers.prmissionController.createOrUpdatePermissions(req, res)
 })
 
-router.post('/:tripId/permission/:userId', verifyToken, (req, res) => {
+router.put('/:tripId/permission/:userId', verifyToken, (req, res) => {
     Controllers.prmissionController.createOrUpdatePermissions(req, res, req.params.userId)
 })
 

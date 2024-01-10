@@ -10,6 +10,10 @@ router.get('/:id', verifyToken, (req, res) => {
     Controllers.tripController.getTrip(req, res);
 })
 
+router.get('/', verifyToken, (req, res) => {
+    Controllers.tripController.getAllTrips(req, res);
+})
+
 router.post('/', verifyToken, (req, res) => {
     Controllers.tripController.createTrip(req, res)
 })

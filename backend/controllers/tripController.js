@@ -20,6 +20,50 @@ const getTrip = (req, res) => {
     })
 }
 
+const getAllTrips = (req, res) => {
+    const queries = [
+        Models.Trip.findAll({   // find all trips owned by me
+            raw: true,
+            nest: true,
+            attributes: ['id', 'name', 'description', 'photo'],
+            include: {
+                model: Models.User,
+                as: 'owner',
+                attributes: ['id', 'firstName', 'lastName', 'email']
+            },
+            where: {
+                ownerId: req.user.user_id
+            }
+        }),
+        Models.Permission.findAll({ // find all trips shared with me
+            raw: true,
+            nest: true,
+            where: {
+                userId: req.user.user_id
+            },
+            include: {
+                model: Models.Trip,
+                attributes: ['id', 'name', 'description', 'photo'],
+                include: {
+                    model: Models.User,
+                    as: 'owner',
+                    attributes: ['id', 'firstName', 'lastName', 'email']
+                }
+            }
+        })
+    ]
+
+    Promise.all(queries).then(function (data) {
+        let trips = data[0].concat(data[1].map((value) => {
+            return value.trip
+        }))
+
+        res.status(200).json(trips)
+    }).catch(err => {
+        res.status(500).json({ result: err.message })
+    })
+}
+
 const updateTrip = (req, res) => {
     delete req.body.ownerId; // make sure owner is not updated while editing a map
 
@@ -49,5 +93,5 @@ const deleteTrip = (req, res) => {
 }
 
 module.exports = {
-    createTrip, getTrip, updateTrip, deleteTrip
+    createTrip, getTrip, updateTrip, deleteTrip, getAllTrips
 }

@@ -95,12 +95,14 @@ const createOrUpdatePermissions = (req, res, userId) => {
         if (permission) {
             // permission record already available in table
             return Models.Permission.update({
-                type: type,
-                where: {
-                    tripId: req.params.tripId, 
-                    userId: permission.user.id,
+                    type: type,
+                }, { 
+                    where: {
+                        tripId: req.params.tripId, 
+                        userId: permission.user.id,
+                    }
                 }
-            }).then(() => {
+            ).then(() => {
                 // update the permission object and return the permissions array
                 permission.type = type;
                 return permissions;
@@ -134,43 +136,38 @@ const createOrUpdatePermissions = (req, res, userId) => {
 }
 
 const deletePermissions = (req, res) => {
-    const { email } = req.body;
-
     // The owner can delete permission for a trip
     // The user can delete his own permission for a trip
     checkPermission(req.user.user_id, req.params.tripId, Type.read).then((data) => {
-        // find the permission record to delete
-        let permission = data.permission.find((value) => {
-            return value.email == email;
-        });
-
         let canDelete = false;
-        if (permission.user.id == data.owner.id) {
-            // can't remove owner permission
-            canDelete = false;
-        }
-        else if (data.owner.id == req.user.user_id) {
+
+        if (data.owner.id == req.user.user_id) {
             // owner can delete any permissions
             canDelete = true;
         }
-        if (permission.user.id == req.user.user_id) {
+        else if (req.params.userId == req.user.user_id) {
             // can delete his own permission
             canDelete = true;
+        }
+        else if (req.params.userId == data.owner.id) {
+            // can't remove owner permission
+            canDelete = false;
         }
 
         if (!canDelete) {
             throw { message: 'Not allowed' }
         }
         else {
-            Models.Permission.destroy({
+            return Models.Permission.destroy({
                 where: {
                     tripId: req.params.tripId, 
-                    userId: permission.user.id,
+                    userId: req.params.userId,
                 }
             }).then(() => {
-                return data.permission.filter((value) => {
-                    return value.user.email == email;
+                data.permission = data.permission.filter((value) => {
+                    return value.user.id != req.params.userId;
                 })
+                return data;
             })
         }
     }).then((data) => {
