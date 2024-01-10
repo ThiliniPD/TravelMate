@@ -2,12 +2,17 @@
 const { Model } = require("sequelize");
 const Models = require("../models");
 
+//It defines an object named Type with properties read, write, and own, 
+//each representing a different level of permission.
 const Type = {
     read: 0,
     write: 1,
     own: 2,
 }
 
+//checks if a user has the required permission for a specific trip
+//retrieves trip information and permissions from the database using Sequelize queries.
+//
 const checkPermission = async (userId, tripId, permission) => {
     const queries = [Models.Trip.findOne({
             raw: true,
@@ -59,6 +64,7 @@ const checkPermission = async (userId, tripId, permission) => {
     });
 }
 
+//Calls checkPermission with the user ID, trip ID, and Type.read to ensure the user has read access
 const getPermissions = (req, res) => {
     console.log("req", req)
     // anyone with read access can get permissions for a trip
@@ -70,6 +76,8 @@ const getPermissions = (req, res) => {
     })
 }
 
+//Validates the request data and ensures that only the owner can perform this action
+//Updates existing permissions or creates new ones based on the provided user ID or email.
 const createOrUpdatePermissions = (req, res, userId) => {
     const { type, email } = req.body;
     if ((type != Type.own && type != Type.write && type != Type.read) || email == "") {
@@ -139,6 +147,9 @@ const createOrUpdatePermissions = (req, res, userId) => {
     })
 }
 
+//Checks if the user has the necessary permission to delete
+// (either the owner or the user deleting their own permission).
+//Deletes the specified permission from the database and updates the permissions array
 const deletePermissions = (req, res) => {
     // The owner can delete permission for a trip
     // The user can delete his own permission for a trip
