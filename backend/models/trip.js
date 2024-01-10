@@ -13,7 +13,7 @@ Trip.init({
             type: DataTypes.STRING, allowNull: false, required: true
         },
         description: {
-            type: DataTypes.STRING, allowNull: true, required: false
+            type: DataTypes.TEXT, allowNull: true, required: false
         },
         photo: {
             type: DataTypes.TEXT, allowNull: true, required: false
