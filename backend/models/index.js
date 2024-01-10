@@ -1,11 +1,31 @@
 'use strict'
-const User = require('./user') // 1. require the model
 
+// 1. require the model
+const User = require('./user')
+const Trip = require('./trip')
+const Permission = require('./permission')
+
+// 2. sync the model
 async function init() {
-    await User.sync(); // 2. sync the model
+    await User.sync();
+    await Trip.sync();
+    await Permission.sync();
 };
 init();
 
+// 3. define relationships
+Trip.belongsTo(User, { foreignKey: 'ownerId', as: 'owner' });
+User.hasMany(Trip, { foreignKey: 'ownerId', as: 'owner' }); 
+
+Permission.belongsTo(User, { foreignKey: 'userId' });
+User.hasMany(Permission, { foreignKey: 'userId'});
+
+Permission.belongsTo(Trip, { foreignKey: 'tripId' });
+Trip.hasMany(Permission, { foreignKey: 'tripId'});
+
+// 4. export the model
 module.exports = {
-    User, // 3. export the model
+    User,
+    Trip,
+    Permission,
 };
