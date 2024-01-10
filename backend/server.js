@@ -23,6 +23,9 @@ app.use("/images", express.static("public/images")); // required for image mappi
 let tripRoutes = require('./routes/tripRoutes')
 app.use('/api/trips', tripRoutes)
 
+let permissionRoutes = require('./routes/prmissionRoutes')
+app.use('/api/trip/:tripId/permission', permissionRoutes)
+
 // only load the distribution/production version of frontend if we aren't running our local/dev server
 if (environment != 'local') {
 
