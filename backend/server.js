@@ -24,7 +24,7 @@ let tripRoutes = require('./routes/tripRoutes')
 app.use('/api/trips', tripRoutes)
 
 let permissionRoutes = require('./routes/prmissionRoutes')
-app.use('/api/trip/:tripId/permission', permissionRoutes)
+app.use('/api/trip', permissionRoutes)
 
 // only load the distribution/production version of frontend if we aren't running our local/dev server
 if (environment != 'local') {
