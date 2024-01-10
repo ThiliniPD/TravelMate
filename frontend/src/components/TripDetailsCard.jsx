@@ -17,6 +17,7 @@ import EditLocationOutlinedIcon from '@mui/icons-material/EditLocationOutlined';
 import LanguageOutlinedIcon from '@mui/icons-material/LanguageOutlined';
 import { useItineraryContext } from '../context/ItineraryContext';
 import { useNavigate } from 'react-router-dom';
+import DeleteForeverSharpIcon from '@mui/icons-material/DeleteForeverSharp';
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -29,13 +30,18 @@ const ExpandMore = styled((props) => {
   }),
 }));
 
-export default function TripDetailsCard({trip}) {
+export default function TripDetailsCard({trip, onDeleteItem}) {
     const itinerary = useItineraryContext();
     const navigate = useNavigate();
 
     const handleLoadTrip = async function() {
         await itinerary.loadItinery(trip.id);
         navigate("/itinerary");
+    }
+
+    const handleDeleteTrip = async function() {
+        await itinerary.deleteItinery(trip.id);
+        onDeleteItem(trip.id);
     }
 
     return (
@@ -72,8 +78,8 @@ export default function TripDetailsCard({trip}) {
                 <IconButton aria-label="url" disabled={!trip.url}>
                     <LanguageOutlinedIcon />
                 </IconButton>
-                <IconButton aria-label="edit" onClick={handleLoadTrip}>
-                    <EditLocationOutlinedIcon />
+                <IconButton aria-label="edit" onClick={handleDeleteTrip}>
+                    <DeleteForeverSharpIcon />
                 </IconButton>
             </CardActions>
         </Card>

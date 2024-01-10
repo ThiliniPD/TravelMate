@@ -16,13 +16,21 @@ export default function Profilepage() {
             .catch(err => console.log(err.message))
     }, []);
 
+    const handleDeleteItem = (tripId) => {
+        let newTrips = trips.filter((trip) => {
+            return (trip.id != tripId);
+        });
+
+        setTrips(newTrips);
+    }
+
     return(
-        <Grid container spacing={3} sx={{ margin:'16px' }}>
-            { 
+        <Grid container spacing={3} sx={{ margin:'16px', width: 'calc(100% - 32px)' }}>
+            {
                 trips.map((trip, i) => {
                     return (
                         <Grid item key={i} xs={12} sm={6} md={4} lg={3} xl={3}>
-                            <TripDetailsCard trip={trip}/>
+                            <TripDetailsCard trip={trip} onDeleteItem={handleDeleteItem}/>
                         </Grid>
                     )
                 })
