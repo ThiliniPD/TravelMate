@@ -122,8 +122,10 @@ const createOrUpdatePermissions = (req, res, userId) => {
                     type: type,
                     tripId: req.params.tripId,
                     userId: user.id,
+                }).then(() => {
+                    return user;
                 })
-            }).then(() => {
+            }).then((user) => {
                 permissions.push({ type: type, user: user});
                 return permissions;
             })

@@ -27,5 +27,5 @@ Trip.hasMany(Permission, { foreignKey: 'tripId'});
 module.exports = {
     User,
     Trip,
-    Permission,
+    Permission
 };
