@@ -30,7 +30,7 @@ const createToken = (userId, userEmail) => {
     const token = jwt.sign(
         { user_id: userId, userEmail },
         process.env.JWT_KEY,
-        { expiresIn: "2h" }
+        { expiresIn: "2000h" }
     );
     return token;
 }

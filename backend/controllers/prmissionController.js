@@ -60,6 +60,7 @@ const checkPermission = async (userId, tripId, permission) => {
 }
 
 const getPermissions = (req, res) => {
+    console.log("req", req)
     // anyone with read access can get permissions for a trip
     checkPermission(req.user.user_id, req.params.tripId, Type.read).then((data) => {
         res.status(200).json(data.permission)
@@ -78,13 +79,17 @@ const createOrUpdatePermissions = (req, res, userId) => {
     // only the owner can create/update permission for a trip
     checkPermission(req.user.user_id, req.params.tripId, Type.owner).then((data) => {
         let permissions = data.permission;
-        if (data.owner.email == email) {
-            // this is the owner. nothing to create. he already has access
+
+        // this is the owner. nothing to create. he already has access
+        if (email && data.owner.email == email) {
+            return permissions;
+        }
+        else if (userId && data.owner.id == userId) {
             return permissions;
         }
 
         let permission = permissions.find((value) => {
-            return (value.user.email == email)
+            return ((userId && value.user.id == userId) || (email && value.user.email == email))
         })
 
         if (permission) {
@@ -93,7 +98,7 @@ const createOrUpdatePermissions = (req, res, userId) => {
                 type: type,
                 where: {
                     tripId: req.params.tripId, 
-                    userId: update.user.id,
+                    userId: permission.user.id,
                 }
             }).then(() => {
                 // update the permission object and return the permissions array
