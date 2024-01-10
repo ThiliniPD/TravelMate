@@ -5,7 +5,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
@@ -18,10 +18,12 @@ import axios from 'axios'
 export default function Login() {
 
     const currentUser = useUserContext();
+    const navigate = useNavigate();
 
-    const [loggedIn, setLoggedIn] = React.useState(currentUser.firstName)
     const [errMsg, setErrMsg] = React.useState('')
     const [loginAttempts, setLoginAttempts] = React.useState(0)
+
+    let loggedIn = currentUser.isLoggedIn();
 
     console.log(currentUser)
 
@@ -61,11 +63,10 @@ export default function Login() {
                 setErrMsg('Unsuccessful login attempt #' + newAttempts + ' of 5');
             }
             setLoginAttempts(newAttempts)
-            setLoggedIn(false)
         } else {
             setErrMsg('')
             currentUser.handleUpdateUser(loggedInUser)
-            setLoggedIn(true)
+            navigate("/")
         }
 
     };
@@ -134,7 +135,7 @@ export default function Login() {
                             </Grid>
                         </Grid>
                     </Box>
-                 : <Button onClick={() => { currentUser.handleUpdateUser({}); setLoggedIn(false); }}>Log Out</Button> }
+                 : <Button onClick={() => { currentUser.handleUpdateUser({}) }}>Log Out</Button> }
             </Box>
         </Container>
     );

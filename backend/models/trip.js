@@ -16,7 +16,7 @@ Trip.init({
             type: DataTypes.STRING, allowNull: true, required: false
         },
         photo: {
-            type: DataTypes.STRING, allowNull: true, required: false
+            type: DataTypes.TEXT, allowNull: true, required: false
         },
         itinerary: {
             type: DataTypes.JSON, allowNull: false, require: true

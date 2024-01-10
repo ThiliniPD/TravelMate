@@ -4,9 +4,10 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { useUserContext } from '../context/UserContext';
 import { useItineraryContext } from '../context/ItineraryContext';
 import { useNavigate } from 'react-router-dom';
-import { Button, Container, Divider, IconButton, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
+import { Avatar, Button, Container, Divider, IconButton, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
 import { useState } from 'react';
 import { Box } from '@mui/material'; // keep this import at last as a workaround for MUI issue
+import { useAppBarStateContext } from '../context/AppBarStateContext';
 
 
 
@@ -15,7 +16,7 @@ const logo = "Travel Mate"
 const loginModes = { loggedIn:1, loggedOut:2, any:3 }
 const pages = [
   { name: "Homepage", route: "/", mode: loginModes.any }, 
-  { name: "Itinerarypage", route: "/itinerary", mode: loginModes.loggedIn },
+  { name: "Profile", route: "/profile", mode: loginModes.loggedIn },
   { name: "Login", route: "/signin", mode: loginModes.loggedOut },
   { name: "Logout", route: "/signout", mode: loginModes.loggedIn },
 ];
@@ -25,6 +26,7 @@ export default function AppBar(props) {
     const navigate = useNavigate();
     const user = useUserContext();
     const itinerary = useItineraryContext();
+    const buttonState = useAppBarStateContext();
 
     function handleOpenNavMenu(event) {
         setAnchorElNav(event.currentTarget);
@@ -40,6 +42,11 @@ export default function AppBar(props) {
 
     function handleSaveMap() {
       itinerary.saveItinery();
+    }
+
+    function handleCreateMap() {
+      itinerary.resetItinery();
+      navigate("/itinerary");
     }
 
     const mode = user.isLoggedIn() ? loginModes.loggedIn : loginModes.loggedOut;
@@ -143,12 +150,33 @@ export default function AppBar(props) {
                 ))}
                 <Divider orientation='vertical' variant='middle' flexItem/>
                 {
-                  (mode == loginModes.loggedIn) ?
+                  (mode == loginModes.loggedIn && buttonState.showSaveMap()) ?
                   <Button sx={{ my: 2, color: 'white', display: 'block', border:0 }}
                     onClick={() => { handleSaveMap() }}
                   >
                     Save Map
                   </Button>
+                  :
+                  null
+                }
+
+                {
+                  (mode == loginModes.loggedIn && buttonState.showCreateMap()) ?
+                  <Button sx={{ my: 2, color: 'white', display: 'block', border:0 }}
+                    onClick={() => { handleCreateMap() }}
+                  >
+                    Create Map
+                  </Button>
+                  :
+                  null
+                }
+              </Box>
+              <Box sx={{ flexGrow: 0 }}>
+                {
+                  mode == loginModes.loggedIn ?
+                  <IconButton sx={{ p: 0 }}>
+                    <Avatar alt={user.profilePhotoTitle} src={user.profilePhoto} />
+                  </IconButton>
                   :
                   null
                 }

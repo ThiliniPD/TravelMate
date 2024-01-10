@@ -65,6 +65,7 @@ const getPermissions = (req, res) => {
     checkPermission(req.user.user_id, req.params.tripId, Type.read).then((data) => {
         res.status(200).json(data.permission)
     }).catch(err => {
+        console.log("db error:", err);
         res.status(500).json({ result: err.message })
     })
 }
@@ -131,6 +132,7 @@ const createOrUpdatePermissions = (req, res, userId) => {
     }).then((permissions) => {
         res.status(200).json(permissions)
     }).catch(err => {
+        console.log("db error:", err);
         res.status(500).json({ result: err.message })
     })
 }
@@ -173,6 +175,7 @@ const deletePermissions = (req, res) => {
     }).then((data) => {
         res.status(200).json(data.permission)
     }).catch(err => {
+        console.log("db error:", err);
         res.status(500).json({ result: err.message })
     })
 }

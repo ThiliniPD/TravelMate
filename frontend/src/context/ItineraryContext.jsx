@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useState, useContext, createContext, useRef } from "react";
+import { useState, useContext, createContext, useRef, useEffect } from "react";
 import { useUserContext } from "./UserContext";
 
 const ItineraryContext = createContext();
@@ -63,11 +63,11 @@ export const ItineraryProvider = ({children}) => {
     }
 
     function hasStart() {
-        return privateState.startAdded == true;
+        return privateState.current.startAdded == true;
     }
 
     function hasEnd() {
-        return privateState.endAdded == true;
+        return privateState.current.endAdded == true;
     }
 
     function updateRoutes(routes) {
@@ -97,7 +97,13 @@ export const ItineraryProvider = ({children}) => {
                 if (place.geometry.viewport && place.geometry.viewport.toJSON) {
                     geoJson.viewport = place.geometry.viewport.toJSON();
                 }
-                place.geometry = geoJson;
+
+                if (geoJson.location) {
+                    place.geometry = geoJson;
+                }
+                else {
+                    // A json already
+                }
             }
 
             if (index < mapData.length - 1) {
@@ -109,6 +115,23 @@ export const ItineraryProvider = ({children}) => {
                     place.routeData = route.data;
                 }
             }
+
+            if (!place.photos) {
+                place.photos = []
+            }
+
+            place.photos = place.photos.map((photo, i) => {
+                if (photo.getUrl) {
+                    return {
+                        width: photo.width,
+                        heright: photo.heright,
+                        url : photo.getUrl({maxHeight: 480})
+                    }
+                }
+                else {
+                    return photo;
+                }
+            })
         })
 
         let mapObject = {
@@ -117,6 +140,17 @@ export const ItineraryProvider = ({children}) => {
             startDate : properties.startDate || Date.now(),
             photo: properties.photo,
             itinerary: mapData,
+        }
+
+        // find a photo possibly of the destination
+        if (!mapObject.photo) {
+            mapData.reverse().find((place) => {
+                if (place.photos.length) {
+                    mapObject.photo = place.photos[0].url;
+                    return true;
+                }
+                return false;
+            })
         }
 
         console.log("map object: ", mapObject);
@@ -185,10 +219,10 @@ export const ItineraryProvider = ({children}) => {
                 }
 
                 if (place.type == 'end') {
-                    privateState.endAdded = true;
+                    privateStetObj.endAdded = true;
                 }
 
-                if (i < mapObject.itinerary.length - 1) {
+                if (i < mapObject.itinerary.length - 1 && route != null) {
                     route.endId = mapObject.itinerary[i + 1].placeId;
                     routeDataObj.set(place.placeId, route);
                 }
@@ -199,7 +233,11 @@ export const ItineraryProvider = ({children}) => {
             setProperties(propDataObj);
             setRouteData(routeDataObj);
             setItinerary(itineraryObj);
+
+            return true;
         }
+
+        return false;
     }
 
     async function deleteItinery(mapId) {
@@ -214,10 +252,17 @@ export const ItineraryProvider = ({children}) => {
         }
     }
 
+    function resetItinery() {
+        setItinerary([]);
+        setRouteData(new Map());
+        privateState.current = {};
+        setProperties({});
+    }
+
     return (
         <ItineraryContext.Provider value={{ value:itinerary, addPlace, removePlace, 
             hasStart, hasEnd, routes:routeData, updateRoutes, properties, setProperties,
-            saveItinery, loadItinery, deleteItinery }}>
+            saveItinery, loadItinery, deleteItinery, resetItinery }}>
             {children}
         </ItineraryContext.Provider>
     );
