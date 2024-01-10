@@ -89,10 +89,21 @@ export const ItineraryProvider = ({children}) => {
     async function saveItinery() {
         let mapData = [...itinerary]
         mapData.forEach((place, index) => {
+            if (place.geometry) {
+                let geoJson = {}
+                if (place.geometry.location && place.geometry.location.toJSON) {
+                    geoJson.location = place.geometry.location.toJSON();
+                }
+                if (place.geometry.viewport && place.geometry.viewport.toJSON) {
+                    geoJson.viewport = place.geometry.viewport.toJSON();
+                }
+                place.geometry = geoJson;
+            }
+
             if (index < mapData.length - 1) {
                 // merge the route data
                 let startPlaceId = place.placeId;
-                let endPlaceId = mapData[index].placeId;
+                let endPlaceId = mapData[index + 1].placeId;
                 let route = routeData.get(startPlaceId);
                 if (route && route.endId && route.endId == endPlaceId) {
                     place.routeData = route.data;
@@ -101,23 +112,24 @@ export const ItineraryProvider = ({children}) => {
         })
 
         let mapObject = {
-            name: properties.name,
-            description : properties.description,
-            startDate : properties.startDate,
+            name: properties.name || "test",
+            description : properties.description || "test",
+            startDate : properties.startDate || Date.now(),
             photo: properties.photo,
-            owner: currentUser.id,
             itinerary: mapData,
         }
+
+        console.log("map object: ", mapObject);
 
         const headers = { "x-access-token": currentUser.token }
 
         if (!privateState.current.mapId) {
             // this is a new map. request to create it
             try {
-                let response = await axios.post('/api/trips/', mapObject, {headers: headers});
-                const {mapId} = response.data;
-                privateState.current.mapId = mapId;
-                console.log(`Map ${mapId} created`);
+                let response = await axios.post('/api/trips', mapObject, {headers: headers});
+                const data = response.data;
+                privateState.current.mapId = data.id;
+                console.log(`Map ${data.id} created`, data);
             } catch (err) {
                 console.log(err.message)
             }

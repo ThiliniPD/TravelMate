@@ -14,11 +14,14 @@ async function init() {
 init();
 
 // 3. define relationships
-Trip.belongsTo(User, { foreignKey: 'owner' });
-User.hasMany(Trip, { foreignKey: 'owner' }); 
+Trip.belongsTo(User, { foreignKey: 'ownerId', as: 'owner' });
+User.hasMany(Trip, { foreignKey: 'ownerId', as: 'owner' }); 
 
-User.belongsToMany(Trip, { through: Permission });
-Trip.belongsToMany(User, { through: Permission });
+Permission.belongsTo(User, { foreignKey: 'userId' });
+User.hasMany(Permission, { foreignKey: 'userId'});
+
+Permission.belongsTo(Trip, { foreignKey: 'tripId' });
+Trip.hasMany(Permission, { foreignKey: 'tripId'});
 
 // 4. export the model
 module.exports = {
