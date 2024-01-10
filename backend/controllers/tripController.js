@@ -8,6 +8,7 @@ const createTrip = (req, res) => {
     Models.Trip.create(req.body).then(function (data) {
         res.status(200).json(data)
     }).catch(err => {
+        console.log("db error:", err);
         res.status(500).json({ result: err.message })
     })
 }
@@ -16,6 +17,7 @@ const getTrip = (req, res) => {
     Permission.checkPermission(req.user.user_id, req.params.id, Permission.Type.read).then(function (data) {
         res.status(200).json(data)
     }).catch(err => {
+        console.log("db error:", err);
         res.status(500).json({ result: err.message })
     })
 }
@@ -60,6 +62,7 @@ const getAllTrips = (req, res) => {
 
         res.status(200).json(trips)
     }).catch(err => {
+        console.log("db error:", err);
         res.status(500).json({ result: err.message })
     })
 }
@@ -76,6 +79,7 @@ const updateTrip = (req, res) => {
     }).then(function (data) {
         res.status(200).json(data)
     }).catch(err => {
+        console.log("db error:", err);
         res.status(500).json({ result: err.message })
     });
 }
@@ -88,6 +92,7 @@ const deleteTrip = (req, res) => {
     }).then(function (data) {
         res.status(200).json(data)
     }).catch(err => {
+        console.log("db error:", err);
         res.status(500).json({ result: err.message })
     })
 }

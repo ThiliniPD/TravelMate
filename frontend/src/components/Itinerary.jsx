@@ -18,13 +18,20 @@ const actionInfo = [
 const START_ACTION_INDEX = 0;
 const END_ACTION_INDEX = actionInfo.length - 1;
 
+function getPhoto(place) {
+    try{
+        return place.photos[0].url || place.photos[0].getUrl({maxWidth:300})
+    }
+    catch (e) {
+        return 'https://mui.com/static/images/cards/live-from-space.jpg';
+    }
+}
+
 function LocationDetails({selectedLocation, onAddClicked}) {
     const [selectedAction, setSelectedAction] = React.useState(0);
     const itinerary = useItineraryContext();
 
-    const image = (selectedLocation.photos && selectedLocation.photos.length) 
-        ? selectedLocation.photos[0].getUrl({maxWidth:300}) 
-        : 'https://mui.com/static/images/cards/live-from-space.jpg';
+    const image = getPhoto(selectedLocation);
 
     const onAddClickedInternal = function() {
         selectedLocation.type = actionInfo[selectedAction].code
@@ -138,9 +145,7 @@ function SelectedLocationPane() {
 }
 
 function PlaceIcon({ place }) {
-    const image = (place.photos && place.photos.length) 
-        ? place.photos[0].getUrl({ maxWidth:300 }) 
-        : 'https://mui.com/static/images/cards/live-from-space.jpg';
+    const image = getPhoto(place);
 
     return(
         <Avatar src={ image } sx={ {width: 50, height: 50} } variant="circular"></Avatar>

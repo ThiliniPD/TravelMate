@@ -6,6 +6,7 @@ import ItineraryPage from "../pages/Itinerarypage";
 import ForgotPassword from "../components/ForgotPassword";
 import { useUserContext } from "../context/UserContext";
 import Logoutpage from "../pages/Logoutpage";
+import Profilepage from "../pages/Profilepage";
 
 function AppRoutes(props) {
     const user = useUserContext();
@@ -24,6 +25,7 @@ function AppRoutes(props) {
                 // Only allow these routes when logged in
                 <>
                     <Route path='itinerary' element={<ItineraryPage {...props}/>} />
+                    <Route path='profile' element={<Profilepage {...props}/>} />
                     <Route path="signout" element={<Logoutpage {...props} />} />
                 </>
             }

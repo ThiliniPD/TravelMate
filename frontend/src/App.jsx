@@ -8,6 +8,7 @@ import { TealTheme } from './themes/TealTheme';
 import { ThemeProvider } from "@mui/material/styles";
 import { Typography } from '@mui/material'
 import { Link } from 'react-router-dom'
+import { AppBarStateProvider } from './context/AppBarStateContext'
 
 
 function Copyright(props) {
@@ -29,8 +30,10 @@ function App() {
     <ThemeProvider theme={TealTheme}>
       <UserProvider>
         <ItineraryProvider>
-          <AppBar />
-          <AppRoutes />
+          <AppBarStateProvider>
+            <AppBar />
+            <AppRoutes />
+          </AppBarStateProvider>
         </ItineraryProvider>
       </UserProvider>
       <Copyright style={{ background:'#22311c' }}/>

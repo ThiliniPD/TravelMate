@@ -139,11 +139,11 @@ function MainControlBox({ center, sessionToken, onPlaceChanged }) {
 export default function MapComponent (props) {
   const [map, setMap] = React.useState(null);
   const [center, setCenter] = React.useState(null);
+  const [refreshTrigger, setRrefreshTrigger] = React.useState(false);
   const { setSelectedLocation } = useSelectedLocationContext();
   const placesService = React.useRef(null);
   const geoCoderService = React.useRef(null);
   const directionService = React.useRef(null);
-  const directionRenderers = React.useRef({});
   const sessionToken = React.useRef(null);
   const markers = React.useRef();
   const itinerary = useItineraryContext();
@@ -205,7 +205,7 @@ export default function MapComponent (props) {
 
     // recalculate the missing routes routes
     recalcutareRoutes(itinerary.value, itinerary.routes, directionService.current);
-  }, [itinerary.value]);
+  }, [itinerary.value, refreshTrigger]);
 
   React.useEffect(() => {
     if (!map) {
@@ -213,7 +213,7 @@ export default function MapComponent (props) {
       return;
     }
 
-    // remove unused routes
+    // remove unused route data we hold temporaarily
     markers.current.routes.forEach((value, key) => {
       if(!itinerary.routes.has(key)) {
         // this is not in routes anymore. so we remove it from the map
@@ -275,6 +275,30 @@ export default function MapComponent (props) {
       newRoute.setDirections(routeData.data);
       markers.current.routes.set(key, {marker: newMarker, route: newRoute});
     })
+
+    // draw the last marker
+    if (itinerary.value && itinerary.value.length > 0) {
+      let lastPlace = itinerary.value[itinerary.value.length - 1];
+      if (!(!lastPlace || !lastPlace.geometry || !lastPlace.geometry.location)) {
+        let newMarker = markers.current.lastMarker;
+
+        if (!newMarker) {
+          newMarker = new window.google.maps.Marker({
+            map: map,
+            label: {
+              text: " ",
+              fontSize: "14px",
+              color: "black",
+              className: "marker-label mk-route" + (lastPlace.type != "") ? `mk-${lastPlace.type}` : ""
+            }
+          });
+        }
+
+        newMarker.setPosition(lastPlace.geometry.location);
+        markers.current.lastMarker = newMarker;
+      }
+    }
+
   }, [itinerary.routes])
 
   if (loadError) {
@@ -424,7 +448,11 @@ export default function MapComponent (props) {
           zoom={ 10 }
           center={ center }
           options={ options }
-          onLoad={ map => { setMap(map); setCenter(map.getCenter()) } }
+          onLoad={ map => { 
+            setMap(map);
+            setCenter(map.getCenter());
+            setRrefreshTrigger(!refreshTrigger); // trigger a redraw of routes after map is loaded
+          } }
           onUnmount={ () => { setMap(null) } }
           onClick={ onClick }
         >
