@@ -7,6 +7,7 @@ import { Box } from '@mui/material'; // keep this import at last as a workaround
 import { useSelectedLocationContext } from '../context/SelectedLocationContext';
 import { SELECTED_LOCATION_LOADING } from '../context/SelectedLocationContext';
 import { useItineraryContext } from '../context/ItineraryContext';
+import { Configs } from '../../config';
 
 const LIBRARIES = ['places', 'marker', 'routes', 'geocoding'];
 const PLACE_DETAILS = ["formatted_address", "international_phone_number", "rating", "website", "photos", "name", "geometry.location", "geometry.viewport"];
@@ -150,7 +151,7 @@ export default function MapComponent (props) {
   
   // load google services scripts
   const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: 'AIzaSyB4L45EgWGU3NK2KyYr7orRvxLrEFsoFRo',
+    googleMapsApiKey: Configs.GOOGLE_API_KEY,
     libraries: LIBRARIES,
   });
 
