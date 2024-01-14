@@ -40,6 +40,6 @@ In order to use this application, you need to clone it locally. The application 
 	$ npm run build
 	$ cd ../backend
 	$ npm install 
-	$ npm run build
+	$ npm run prod
 	```
 5. You are now able to use the application, open your browser and navigate to http://localhost:8000/
